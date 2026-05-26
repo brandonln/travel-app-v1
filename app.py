@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, send_from_directory
+from flask import Flask, jsonify, render_template
 from flask_cors import CORS
 from search import _get_location, _get_video
 
@@ -7,8 +7,7 @@ CORS(app)
 
 @app.route('/')
 def index():
-    return send_from_directory('.', 'index.html')
-
+    return render_template('index.html')
 
 @app.route('/api/location/<latitude>/<longitude>')
 def get_location(latitude, longitude):
@@ -54,7 +53,6 @@ def get_video(latitude, longitude):
         "title": video["title"],
         "url": video["url"]
     })
-
 
 if __name__ == "__main__":
     app.run(debug=True, port=8000)
