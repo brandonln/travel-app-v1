@@ -42,7 +42,7 @@ def get_video(latitude, longitude):
     if not location:
         return jsonify({"location_found": False}), 200
     
-    video = _get_video(f"{location} vlog")
+    video = _get_video(f"{location} ", "walking tour")
 
     if not video:
         return jsonify({"video_found": False}), 200

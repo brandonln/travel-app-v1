@@ -37,18 +37,17 @@ def _get_location(latitude, longitude):
 
 
 
-def _get_video(search_term):
+def _get_video(location, vid_type="vlog", order="date"):
     """Search for the latest video matching the search term."""
 
     if not api_key:
         return None
 
-
     try:
         response = requests.get("https://www.googleapis.com/youtube/v3/search", params={
             "part": "snippet",
-            "q": search_term,
-            "order": "date",
+            "q": f"{location} + {vid_type}",
+            "order": order,
             "maxResults": 1,
             "key": api_key,
             "type": "video",
