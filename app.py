@@ -50,6 +50,7 @@ def search_youtube_video(search_term):
     if not api_key:
         return None
 
+
     try:
         response = requests.get("https://www.googleapis.com/youtube/v3/search", params={
             "part": "snippet",
@@ -122,24 +123,6 @@ def get_video(latitude, longitude):
         "url": video["url"]
     })
 
-
-    """
-
-    if not city:
-        return jsonify({"error": "City not found"}), 404
-
-    video = search_youtube_video(f"{city} vlog")
-
-    if not video:
-        return jsonify({"error": f"No videos found for '{city} vlog'"}), 404
-
-    return jsonify({
-        "city": city,
-        "title": video["title"],
-        "url": video["url"]
-    })
-
-    """
 
 if __name__ == "__main__":
     app.run(debug=True, port=8000)
