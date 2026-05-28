@@ -19,28 +19,27 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 
 const OptionsControl = L.Control.extend({
     options: {
-        label: '',
-        name: '',
-        options: [],
-        onChange: null
+        groups: []
     },
     onAdd: function(map) {
-        const container = L.DomUtil.create('div', 'leaflet-control');
-        const label = L.DomUtil.create('div', '', container);
-        label.textContent = this.options.label;
+        const container = L.DomUtil.create('div', 'leaflet-control leaflet-bar');
 
-        const onChange = this.options.onChange;
-        this.options.options.forEach((opt, i) => {
-            const optLabel = L.DomUtil.create('label', '', container);
-            const input = L.DomUtil.create('input', '', optLabel);
-            input.type = 'radio';
-            input.name = this.options.name;
-            input.value = opt.value;
-            if (i === 0) input.checked = true;
-            input.addEventListener('change', (e) => {
-                onChange(e.target.value);
+        this.options.groups.forEach(group => {
+            const label = L.DomUtil.create('div', 'leaflet-bar-part', container);
+            label.textContent = group.label;
+
+            group.options.forEach((opt, i) => {
+                const optLabel = L.DomUtil.create('label', 'leaflet-bar-part', container);
+                const input = L.DomUtil.create('input', '', optLabel);
+                input.type = 'radio';
+                input.name = group.name;
+                input.value = opt.value;
+                if (i === 0) input.checked = true;
+                input.addEventListener('change', (e) => {
+                    group.onChange(e.target.value);
+                });
+                optLabel.appendChild(document.createTextNode(opt.label));
             });
-            optLabel.appendChild(document.createTextNode(opt.label));
         });
 
         return container;
@@ -49,24 +48,26 @@ const OptionsControl = L.Control.extend({
 
 new OptionsControl({
     position: 'bottomright',
-    label: 'Order by:',
-    name: 'videoOrder',
-    options: [
-        { value: 'date', label: 'Date' },
-        { value: 'relevance', label: 'Relevance' }
-    ],
-    onChange: (value) => { videoOrderBy = value; }
-}).addTo(map);
-
-new OptionsControl({
-    position: 'bottomright',
-    label: 'Video Type:',
-    name: 'videoType',
-    options: [
-        { value: 'vlog', label: 'Vlog' },
-        { value: 'walking tour', label: 'Walking Tour' }
-    ],
-    onChange: (value) => { videoType = value; }
+    groups: [
+        {
+            label: 'Search by:',
+            name: 'videoOrder',
+            options: [
+                { value: 'date', label: ' Date' },
+                { value: 'relevance', label: ' Relevance' }
+            ],
+            onChange: (value) => { videoOrderBy = value; }
+        },
+        {
+            label: 'Video Type:',
+            name: 'videoType',
+            options: [
+                { value: 'vlog', label: ' Vlog' },
+                { value: 'walking tour', label: ' Walking Tour' }
+            ],
+            onChange: (value) => { videoType = value; }
+        }
+    ]
 }).addTo(map);
 
 map.on('dragstart', function() {
@@ -77,13 +78,13 @@ map.on('dragend', function() {
     document.getElementById('map').style.cursor = 'default';
 });
 
-function showNotification(message) {
+function showNotification(message, duration=3000) {
     const notification = document.getElementById('notification');
     notification.textContent = message;
     notification.classList.add('show');
     setTimeout(() => {
         notification.classList.remove('show');
-    }, 3000);
+    }, duration);
 }
 
 async function getVideo(latitude, longitude, orderBy = videoOrderBy, type = videoType) {
@@ -108,3 +109,11 @@ function handleMapInteraction(e) {
 
 map.on('click', handleMapInteraction);
 map.on('tap', handleMapInteraction);
+
+window.addEventListener('load', () => {
+    setTimeout(() => {
+        const notification = document.getElementById('notification');
+        notification.classList.add('load');
+        showNotification('Click anywhere for a video', 10000);
+    }, 3000);
+});
