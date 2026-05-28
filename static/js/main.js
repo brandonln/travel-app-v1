@@ -35,6 +35,7 @@ function closeVideoOverlay() {
         overlay.classList.add('fade-out');
         setTimeout(() => {
             overlay.classList.remove('fade-out');
+            overlay.innerHTML = '';
         }, 500);
     }
 }
