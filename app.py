@@ -33,9 +33,10 @@ def get_video(latitude, longitude):
     video = _get_video(f"{location} ", video_type, order_by)
 
     if not video:
-        return jsonify({"video_found": False}), 200
+        return jsonify({"location_found": True, "video_found": False}), 200
 
     return jsonify({
+        "location_found": True,
         "video_found": True,
         "location": location,
         "title": video["title"],

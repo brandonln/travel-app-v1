@@ -134,7 +134,12 @@ class TestGetVideo(unittest.TestCase):
             "items": [
                 {
                     "id": {"videoId": "dQw4w9WgXcQ"},
-                    "snippet": {"title": "Amazing Walking Tour"}
+                    "snippet": {
+                        "title": "Amazing Walking Tour",
+                        "thumbnails": {
+                            "default": {"url": "https://i.ytimg.com/vi/dQw4w9WgXcQ/default.jpg"}
+                        }
+                    }
                 }
             ]
         }
@@ -145,6 +150,7 @@ class TestGetVideo(unittest.TestCase):
         self.assertIsNotNone(result)
         self.assertEqual(result['title'], "Amazing Walking Tour")
         self.assertEqual(result['url'], "https://youtube.com/watch?v=dQw4w9WgXcQ")
+        self.assertIsNotNone(result['thumbnail'])
 
     @patch('search.api_key', None)
     def test_get_video_no_api_key(self):
@@ -200,7 +206,15 @@ class TestGetVideo(unittest.TestCase):
     def test_get_video_custom_parameters(self, mock_get):
         """Test custom vid_type and order parameters."""
         mock_get.return_value.json.return_value = {
-            "items": [{"id": {"videoId": "id"}, "snippet": {"title": "Title"}}]
+            "items": [
+                {
+                    "id": {"videoId": "id"},
+                    "snippet": {
+                        "title": "Title",
+                        "thumbnails": {"default": {"url": "https://example.com/image.jpg"}}
+                    }
+                }
+            ]
         }
         mock_get.return_value.raise_for_status.return_value = None
 
@@ -215,7 +229,15 @@ class TestGetVideo(unittest.TestCase):
     def test_get_video_sends_correct_params(self, mock_get):
         """Test that correct parameters are sent to YouTube API."""
         mock_get.return_value.json.return_value = {
-            "items": [{"id": {"videoId": "id"}, "snippet": {"title": "Title"}}]
+            "items": [
+                {
+                    "id": {"videoId": "id"},
+                    "snippet": {
+                        "title": "Title",
+                        "thumbnails": {"default": {"url": "https://example.com/image.jpg"}}
+                    }
+                }
+            ]
         }
         mock_get.return_value.raise_for_status.return_value = None
 
