@@ -28,6 +28,17 @@ function getVideoIdFromUrl(url) {
     return match ? match[1] : null;
 }
 
+function closeVideoOverlay() {
+    const overlay = document.getElementById('video-overlay');
+    if (overlay && overlay.classList.contains('show')) {
+        overlay.classList.remove('show');
+        overlay.classList.add('fade-out');
+        setTimeout(() => {
+            overlay.classList.remove('fade-out');
+        }, 500);
+    }
+}
+
 function showVideoOverlay(title, thumbnail, videoUrl) {
     let overlay = document.getElementById('video-overlay');
 
@@ -92,6 +103,10 @@ function handleMapInteraction(e) {
 
 map.on('click', handleMapInteraction);
 map.on('tap', handleMapInteraction);
+
+// Close overlay when user interacts with map
+map.on('dragstart', closeVideoOverlay);
+map.on('zoomstart', closeVideoOverlay);
 
 window.addEventListener('load', () => {
     setTimeout(() => {
