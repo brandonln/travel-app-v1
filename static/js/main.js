@@ -48,7 +48,7 @@ function showVideoOverlay(title, thumbnail, videoUrl) {
         setTimeout(() => {
             overlay.classList.remove('fade-out');
         }, 500);
-    }, 10000);
+    }, 5000);
 
     overlay.addEventListener('click', () => {
         clearTimeout(timeoutId);
