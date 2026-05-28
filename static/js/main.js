@@ -23,6 +23,11 @@ function showNotification(message, duration=3000) {
     }, duration);
 }
 
+function getVideoIdFromUrl(url) {
+    const match = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\n?#]+)/);
+    return match ? match[1] : null;
+}
+
 function showVideoOverlay(title, thumbnail, videoUrl) {
     let overlay = document.getElementById('video-overlay');
 
@@ -32,11 +37,22 @@ function showVideoOverlay(title, thumbnail, videoUrl) {
         document.body.appendChild(overlay);
     }
 
+    const videoId = getVideoIdFromUrl(videoUrl);
+    const embedUrl = videoId ? `https://www.youtube.com/embed/${videoId}?autoplay=1` : videoUrl;
+
     overlay.innerHTML = `
-        <a href="${videoUrl}" target="_blank">
-            <img src="${thumbnail}" alt="${title}">
+        <div class="video-container">
+            <iframe
+                width="100%"
+                height="200"
+                src="${embedUrl}"
+                title="${title}"
+                frameborder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowfullscreen>
+            </iframe>
             <div class="video-title">${title}</div>
-        </a>
+        </div>
     `;
 
     overlay.classList.remove('fade-out');
