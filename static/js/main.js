@@ -91,7 +91,15 @@ async function getVideo(latitude, longitude) {
 }
 
 function handleMapInteraction(e) {
-    getVideo(e.latlng.lat, e.latlng.lng);
+    const overlay = document.getElementById('video-overlay');
+
+    // If overlay is visible, close it instead of fetching a new video
+    if (overlay && overlay.classList.contains('show')) {
+        closeVideoOverlay();
+    } else {
+        // Only fetch video if no overlay is currently displayed
+        getVideo(e.latlng.lat, e.latlng.lng);
+    }
 }
 
 map.on('click', handleMapInteraction);
