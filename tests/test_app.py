@@ -127,10 +127,10 @@ class TestFlaskApp(unittest.TestCase):
 
         self.client.get('/api/video/35.6762/139.6503')
 
-        # Verify _get_video was called with 'walking tour' as vid_type
+        # Verify _get_video was called with 'vlog' as default vid_type
         args, kwargs = mock_get_video.call_args
         self.assertEqual(args[0], "Tokyo ")
-        self.assertEqual(args[1], "walking tour")
+        self.assertEqual(args[1], "vlog")
 
     def test_json_response_headers(self):
         """Test API endpoints return JSON content type."""
