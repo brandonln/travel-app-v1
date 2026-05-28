@@ -14,6 +14,62 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     maxZoom: 11
 }).addTo(map);
 
+let videoOrderBy = 'date';
+let videoType = 'vlog';
+
+const OptionsControl = L.Control.extend({
+    options: {
+        groups: []
+    },
+    onAdd: function(map) {
+        const container = L.DomUtil.create('div', 'leaflet-control leaflet-bar');
+
+        this.options.groups.forEach(group => {
+            const label = L.DomUtil.create('div', 'leaflet-bar-part', container);
+            label.textContent = group.label;
+
+            group.options.forEach((opt, i) => {
+                const optLabel = L.DomUtil.create('label', 'leaflet-bar-part', container);
+                const input = L.DomUtil.create('input', '', optLabel);
+                input.type = 'radio';
+                input.name = group.name;
+                input.value = opt.value;
+                if (i === 0) input.checked = true;
+                input.addEventListener('change', (e) => {
+                    group.onChange(e.target.value);
+                });
+                optLabel.appendChild(document.createTextNode(opt.label));
+            });
+        });
+
+        return container;
+    }
+});
+
+new OptionsControl({
+    position: 'bottomright',
+    groups: [
+        {
+            label: 'Search by:',
+            name: 'videoOrder',
+            options: [
+                { value: 'date', label: ' Date' },
+                { value: 'relevance', label: ' Relevance' }
+            ],
+            onChange: (value) => { videoOrderBy = value; }
+        },
+        {
+            label: 'Video Type:',
+            name: 'videoType',
+            options: [
+                { value: 'vlog', label: ' Vlog' },
+                { value: 'walking tour', label: ' Walking Tour' }
+            ],
+            onChange: (value) => { videoType = value; }
+        }
+    ]
+}).addTo(map);
+
 function showNotification(message, duration=3000) {
     const notification = document.getElementById('notification');
     notification.textContent = message;
@@ -72,7 +128,7 @@ function showVideoOverlay(title, thumbnail, videoUrl) {
 
 async function getVideo(latitude, longitude) {
     try {
-        const response = await fetch(`/api/video/${latitude}/${longitude}`);
+        const response = await fetch(`/api/video/${latitude}/${longitude}?orderBy=${videoOrderBy}&videoType=${videoType}`);
         const data = await response.json();
 
         if (response.ok && data.video_found) {
