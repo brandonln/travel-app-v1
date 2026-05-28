@@ -26,10 +26,17 @@
 <body>
     <div id="map"></div>
     <script>
-        const map = L.map('map').setView([20, 0], 2);
+        function Location(lat, lon, name) {
+            this.lat = lat;
+            this.lon = lon;
+            this.name = name;
+        }
+
+        const map = L.map('map').setView([-25.96716, 27.66245], 2);
 
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '&copy; OpenStreetMap contributors',
+            minZoom: 5,
             maxZoom: 11
         }).addTo(map);
 
@@ -41,8 +48,60 @@
             document.getElementById('map').style.cursor = 'default';
         });
 
+        map.on('zoomend', async function() {
+            if (map.getZoom() == 11) {
+                var locations = await getLocations()
+                getBboxVideos(locations)
+            }
+        })
 
-        
+
+        async function getLocations() {
+            bounds = map.getBounds()
+            var bbox = `
+                (${bounds.getSouth()}, ${bounds.getWest()}, 
+                ${bounds.getNorth()}, ${bounds.getEast()})
+            `;
+            var query = `
+                [out:json];
+                node["place"="city"]${bbox};
+                out;
+            `;
+            try {
+                var response = await fetch(
+                    "https://overpass-api.de/api/interpreter",
+                    {
+                        method: "POST",
+                        body: "data=" + encodeURIComponent(query),
+                    }
+                )
+
+                if (!response.ok) {
+                    throw new Error(`API error: ${response.status}`);
+                }
+
+                const data = await response.json();
+
+                var locations = []
+                let location;
+
+                for (element of data.elements) {
+                    location = new Location(element.lat, element.lon, element.tags.name)
+                    locations.push(location)
+                }
+
+                return locations
+
+            } catch (error) {
+                console.error(error);
+            }
+        }
+
+        async function getBboxVideos(locations) {
+            console.log(locations)
+        }
+
+
         async function getLocation(latitude, longitude) {
             try {
                 const response = await fetch(`/api/location/${latitude}/${longitude}`);
@@ -57,6 +116,7 @@
                 console.error(error);
             }
         }
+
 
         async function getVideo(latitude, longitude) {
             try {
