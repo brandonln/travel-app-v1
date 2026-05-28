@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, render_template
+from flask import Flask, jsonify, render_template, request
 from flask_cors import CORS
 from search import _get_location, _get_video
 
@@ -41,8 +41,10 @@ def get_video(latitude, longitude):
 
     if not location:
         return jsonify({"location_found": False}), 200
-    
-    video = _get_video(f"{location} ", "walking tour")
+
+    order_by = request.args.get('orderBy', 'date')
+    video_type = request.args.get('videoType', 'vlog')
+    video = _get_video(f"{location} ", video_type, order_by)
 
     if not video:
         return jsonify({"video_found": False}), 200
