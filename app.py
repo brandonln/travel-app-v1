@@ -51,7 +51,8 @@ def get_video(latitude, longitude):
         "video_found": True,
         "location": location,
         "title": video["title"],
-        "url": video["url"]
+        "url": video["url"],
+        "thumbnail": video["thumbnail"]
     })
 
 if __name__ == "__main__":

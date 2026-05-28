@@ -64,8 +64,10 @@ def _get_video(location, vid_type="vlog", order="date"):
         video_id = video["id"]["videoId"]
         title = video["snippet"]["title"]
         url = f"https://youtube.com/watch?v={video_id}"
+        thumbnails = video["snippet"]["thumbnails"]
+        thumbnail_url = thumbnails.get("high", {}).get("url") or thumbnails.get("default", {}).get("url")
 
-        return {"title": title, "url": url}
+        return {"title": title, "url": url, "thumbnail": thumbnail_url}
 
     except requests.exceptions.RequestException as e:
         return None

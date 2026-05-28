@@ -1,0 +1,118 @@
+*, *::before, *::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    width: 100%;
+    height: 100vh;
+}
+
+#map {
+    width: 100%;
+    height: 100%;
+    cursor: default;
+}
+
+#notification {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: white;
+    color: #333;
+    padding: 12px 20px;
+    border-radius: 20px;
+    border: 1px solid #ddd;
+    box-shadow: 0 1px 5px rgba(0, 0, 0, 0.1);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease-in-out;
+    z-index: 2000;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 14px;
+    white-space: nowrap;
+}
+
+#notification.show {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.leaflet-bar {
+    border-radius: 4px;
+    box-shadow: 0 1px 5px rgba(0, 0, 0, 0.65);
+    background-color: #fff;
+    padding: 6px;
+}
+
+.leaflet-bar-part {
+    padding: 5px 8px;
+    font-size: 13px;
+    line-height: 1.4;
+    cursor: pointer;
+    background-color: #fff;
+}
+
+.leaflet-bar-part:hover {
+    background-color: #f5f5f5;
+}
+
+.leaflet-bar-part.active {
+    background-color: #d3d3d3;
+}
+
+#video-overlay {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+    z-index: 2000;
+    max-width: 320px;
+    overflow: hidden;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease-in-out;
+}
+
+#video-overlay.show {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+#video-overlay.fade-out {
+    animation: fadeOut 0.5s ease-in-out forwards;
+}
+
+@keyframes fadeOut {
+    to {
+        opacity: 0;
+    }
+}
+
+#video-overlay a {
+    display: block;
+    text-decoration: none;
+    color: inherit;
+    cursor: pointer;
+}
+
+#video-overlay img {
+    width: 100%;
+    display: block;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+}
+
+#video-overlay .video-title {
+    padding: 12px;
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 1.4;
+    color: #333;
+    font-family: Arial, Helvetica, sans-serif;
+}
