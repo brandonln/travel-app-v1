@@ -25,9 +25,9 @@ def _get_location(latitude, longitude):
         address = data.get("address", {})
 
         location = (
-                address.get("city") or 
-                address.get("town") or 
-                address.get("village")
+                address.get("city") or
+                address.get("village") or
+                address.get("town")
         )
 
         return location if location else None

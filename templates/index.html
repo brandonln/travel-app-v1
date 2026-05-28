@@ -21,28 +21,6 @@
             height: 100%;
             cursor: default;
         }
-        .leaflet-control-order {
-            background-color: white !important;
-            border-radius: 4px;
-            box-shadow: 0 1px 5px rgba(0, 0, 0, 0.65);
-            padding: 10px;
-            font-family: Arial, Helvetica, sans-serif;
-            width: auto;
-            z-index: 1000;
-            min-width: 200px;
-            display: block !important;
-        }
-        .leaflet-control-order label {
-            display: inline-block;
-            margin: 0 10px 0 0;
-            font-size: 12px;
-            cursor: pointer;
-            user-select: none;
-        }
-        .leaflet-control-order input[type="radio"] {
-            margin-right: 5px;
-            cursor: pointer;
-        }
         #notification {
             position: fixed;
             top: 20px;
@@ -91,90 +69,57 @@
             maxZoom: 11
         }).addTo(map);
 
-        const VideoTypeControl = L.Control.extend({
+        const OptionsControl = L.Control.extend({
+            options: {
+                label: '',
+                name: '',
+                options: [],
+                onChange: null
+            },
             onAdd: function(map) {
-                const container = L.DomUtil.create('div', 'leaflet-control leaflet-control-order');
+                const container = L.DomUtil.create('div', 'leaflet-control');
+                const label = L.DomUtil.create('div', '', container);
+                label.textContent = this.options.label;
 
-                const instruction = L.DomUtil.create('div', '', container);
-                instruction.style.fontSize = '12px';
-                instruction.style.marginBottom = '5px';
-
-                const instructionText = L.DomUtil.create('div', '', instruction);
-                instructionText.style.fontStyle = 'italic';
-                instructionText.textContent = 'Drag to move, click or tap for a:';
-
-                const blankLine1 = L.DomUtil.create('div', '', container);
-                blankLine1.style.height = '5px';
-
-                const vlogLabel = L.DomUtil.create('label', '', container);
-                const vlogInput = L.DomUtil.create('input', '', vlogLabel);
-                vlogInput.type = 'radio';
-                vlogInput.name = 'videoType';
-                vlogInput.value = 'vlog';
-                vlogInput.checked = true;
-                vlogLabel.appendChild(document.createTextNode('Vlog'));
-
-                const walkingTourLabel = L.DomUtil.create('label', '', container);
-                const walkingTourInput = L.DomUtil.create('input', '', walkingTourLabel);
-                walkingTourInput.type = 'radio';
-                walkingTourInput.name = 'videoType';
-                walkingTourInput.value = 'walking tour';
-                walkingTourLabel.appendChild(document.createTextNode('Walking Tour'));
-
-                vlogInput.addEventListener('change', function() {
-                    videoType = 'vlog';
-                });
-
-                walkingTourInput.addEventListener('change', function() {
-                    videoType = 'walking tour';
+                const onChange = this.options.onChange;
+                this.options.options.forEach((opt, i) => {
+                    const optLabel = L.DomUtil.create('label', '', container);
+                    const input = L.DomUtil.create('input', '', optLabel);
+                    input.type = 'radio';
+                    input.name = this.options.name;
+                    input.value = opt.value;
+                    if (i === 0) input.checked = true;
+                    input.addEventListener('change', (e) => {
+                        onChange(e.target.value);
+                    });
+                    optLabel.appendChild(document.createTextNode(opt.label));
                 });
 
                 return container;
             }
         });
 
-        const VideoOrderControl = L.Control.extend({
-            onAdd: function(map) {
-                const container = L.DomUtil.create('div', 'leaflet-control leaflet-control-order');
+        new OptionsControl({
+            position: 'bottomright',
+            label: 'Order by:',
+            name: 'videoOrder',
+            options: [
+                { value: 'date', label: 'Date' },
+                { value: 'relevance', label: 'Relevance' }
+            ],
+            onChange: (value) => { videoOrderBy = value; }
+        }).addTo(map);
 
-                const orderText = L.DomUtil.create('div', '', container);
-                orderText.style.fontSize = '12px';
-                orderText.style.marginBottom = '5px';
-                orderText.style.fontStyle = 'italic';
-                orderText.textContent = 'Ordered by:';
-
-                const blankLine = L.DomUtil.create('div', '', container);
-                blankLine.style.height = '5px';
-
-                const dateLabel = L.DomUtil.create('label', '', container);
-                const dateInput = L.DomUtil.create('input', '', dateLabel);
-                dateInput.type = 'radio';
-                dateInput.name = 'videoOrder';
-                dateInput.value = 'date';
-                dateInput.checked = true;
-                dateLabel.appendChild(document.createTextNode('Date'));
-
-                const relevanceLabel = L.DomUtil.create('label', '', container);
-                const relevanceInput = L.DomUtil.create('input', '', relevanceLabel);
-                relevanceInput.type = 'radio';
-                relevanceInput.name = 'videoOrder';
-                relevanceInput.value = 'relevance';
-                relevanceLabel.appendChild(document.createTextNode('Relevance'));
-
-                dateInput.addEventListener('change', function() {
-                    videoOrderBy = 'date';
-                });
-
-                relevanceInput.addEventListener('change', function() {
-                    videoOrderBy = 'relevance';
-                });
-
-                return container;
-            }
-        });
-
-        new VideoOrderControl({ position: 'bottomright' }).addTo(map);
-        new VideoTypeControl({ position: 'bottomright' }).addTo(map);
+        new OptionsControl({
+            position: 'bottomright',
+            label: 'Video Type:',
+            name: 'videoType',
+            options: [
+                { value: 'vlog', label: 'Vlog' },
+                { value: 'walking tour', label: 'Walking Tour' }
+            ],
+            onChange: (value) => { videoType = value; }
+        }).addTo(map);
 
         map.on('dragstart', function() {
             document.getElementById('map').style.cursor = 'grabbing';
