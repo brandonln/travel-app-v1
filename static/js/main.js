@@ -51,29 +51,11 @@ function showVideoOverlay(title, thumbnail, videoUrl) {
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                 allowfullscreen>
             </iframe>
-            <div class="video-title">${title}</div>
         </div>
     `;
 
     overlay.classList.remove('fade-out');
     overlay.classList.add('show');
-
-    const timeoutId = setTimeout(() => {
-        overlay.classList.remove('show');
-        overlay.classList.add('fade-out');
-        setTimeout(() => {
-            overlay.classList.remove('fade-out');
-        }, 500);
-    }, 5000);
-
-    overlay.addEventListener('click', () => {
-        clearTimeout(timeoutId);
-        overlay.classList.remove('show');
-        overlay.classList.add('fade-out');
-        setTimeout(() => {
-            overlay.classList.remove('fade-out');
-        }, 500);
-    }, { once: true });
 }
 
 function isMobile() {
