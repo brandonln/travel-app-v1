@@ -1,9 +1,3 @@
-function Location(lat, lon, name) {
-    this.lat = lat;
-    this.lon = lon;
-    this.name = name;
-}
-
 const map = L.map('map', {
     maxBounds: L.latLngBounds([[-90, -180], [90, 180]])
 }).setView([-25.96716, 27.66245], 5);
@@ -84,15 +78,21 @@ function getVideoIdFromUrl(url) {
     return match ? match[1] : null;
 }
 
+function fadeOutOverlay(overlay, callback) {
+    overlay.classList.add('fade-out');
+    setTimeout(() => {
+        overlay.classList.remove('fade-out');
+        if (callback) callback();
+    }, 500);
+}
+
 function closeVideoOverlay() {
     const overlay = document.getElementById('video-overlay');
     if (overlay && overlay.classList.contains('show')) {
         overlay.classList.remove('show');
-        overlay.classList.add('fade-out');
-        setTimeout(() => {
-            overlay.classList.remove('fade-out');
+        fadeOutOverlay(overlay, () => {
             overlay.innerHTML = '';
-        }, 500);
+        });
     }
 }
 

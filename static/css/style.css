@@ -95,13 +95,6 @@ body {
     }
 }
 
-#video-overlay a {
-    display: block;
-    text-decoration: none;
-    color: inherit;
-    cursor: pointer;
-}
-
 #video-overlay .video-container {
     display: flex;
     flex-direction: column;
@@ -113,11 +106,3 @@ body {
     border: none;
 }
 
-#video-overlay .video-title {
-    padding: 12px;
-    font-size: 14px;
-    font-weight: 500;
-    line-height: 1.4;
-    color: #030303;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-}

@@ -1,52 +1,40 @@
-from flask import Flask, jsonify, render_template
+from flask import Flask, jsonify, render_template, request
 from flask_cors import CORS
 from search import _get_location, _get_video
 
 app = Flask(__name__, static_folder='static', static_url_path='/static')
 CORS(app)
 
+def validate_coordinates(latitude, longitude):
+    """Validate and convert latitude and longitude to floats."""
+    try:
+        return float(latitude), float(longitude)
+    except ValueError:
+        return None, None
+
 @app.route('/')
 def index():
     return render_template('index.html')
 
-@app.route('/api/location/<latitude>/<longitude>')
-def get_location(latitude, longitude):
-    """API endpoint to get video for a location."""
-
-    try:
-        latitude = float(latitude)
-        longitude = float(longitude)
-    except ValueError:
-        return jsonify({"error": "Invalid coordinates"}), 400
-
-    location = _get_location(latitude, longitude)
-
-    if not location:
-        return jsonify({"found": False}), 200
-    
-    return jsonify({
-        "location_found": True,
-        "location": location
-    })
-    
 @app.route('/api/video/<latitude>/<longitude>')
 def get_video(latitude, longitude):
-    try:
-        latitude = float(latitude)
-        longitude = float(longitude)
-    except ValueError:
+    lat, lon = validate_coordinates(latitude, longitude)
+    if lat is None or lon is None:
         return jsonify({"error": "Invalid coordinates"}), 400
 
-    location = _get_location(latitude, longitude)
+    location = _get_location(lat, lon)
 
     if not location:
         return jsonify({"location_found": False}), 200
-    
-    video = _get_video(f"{location} ", "walking tour")
+
+    order_by = request.args.get('orderBy', 'date')
+    video_type = request.args.get('videoType', 'vlog')
+
+    video = _get_video(f"{location} ", video_type, order_by)
 
     if not video:
         return jsonify({"video_found": False}), 200
-    
+
     return jsonify({
         "video_found": True,
         "location": location,
