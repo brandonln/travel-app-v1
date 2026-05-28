@@ -69,21 +69,13 @@ function showVideoOverlay(title, thumbnail, videoUrl) {
     overlay.classList.add('show');
 }
 
-function isMobile() {
-    return window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-}
-
 async function getVideo(latitude, longitude) {
     try {
         const response = await fetch(`/api/video/${latitude}/${longitude}`);
         const data = await response.json();
 
         if (response.ok && data.video_found) {
-            if (isMobile()) {
-                showVideoOverlay(data.title, data.thumbnail, data.url);
-            } else {
-                window.open(data.url, '_blank');
-            }
+            showVideoOverlay(data.title, data.thumbnail, data.url);
         }
         else if (!data.location_found) {
             showNotification('Try a different location...');
