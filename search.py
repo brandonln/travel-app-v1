@@ -1,9 +1,12 @@
 import os
+import logging
 import requests
 from dotenv import load_dotenv
 
 load_dotenv()
 api_key = os.getenv("YOUTUBE_API_KEY")
+
+logger = logging.getLogger(__name__)
 
 def _get_location(latitude, longitude):
     """Get the city/town/village from coordinates using Nominatim."""
@@ -16,7 +19,8 @@ def _get_location(latitude, longitude):
                 "lon": longitude,
                 "format": "json"
             },
-            headers={"User-Agent": "travel-app/1.0"}
+            headers={"User-Agent": "travel-app/1.0"},
+            timeout=10
         )
 
         response.raise_for_status()
@@ -33,6 +37,7 @@ def _get_location(latitude, longitude):
         return location if location else None
 
     except requests.exceptions.RequestException as e:
+        logger.error(f'Nominatim API error: {type(e).__name__} - {e}')
         return None
 
 
@@ -52,7 +57,7 @@ def _get_video(location, vid_type="vlog", order="date"):
             "key": api_key,
             "type": "video",
             "videoDuration": "medium"
-        })
+        }, timeout=10)
 
         response.raise_for_status()
         data = response.json()
@@ -68,4 +73,5 @@ def _get_video(location, vid_type="vlog", order="date"):
         return {"title": title, "url": url}
 
     except requests.exceptions.RequestException as e:
+        logger.error(f'YouTube API error: {type(e).__name__} - {e}')
         return None
