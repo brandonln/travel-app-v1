@@ -8,7 +8,7 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     maxZoom: 11
 }).addTo(map);
 
-let videoOrderBy = 'date';
+let orderBy = 'date';
 let videoType = 'vlog';
 
 const OptionsControl = L.Control.extend({
@@ -45,12 +45,12 @@ new OptionsControl({
     groups: [
         {
             label: 'Search by:',
-            name: 'videoOrder',
+            name: 'orderBy',
             options: [
                 { value: 'date', label: ' Date' },
                 { value: 'relevance', label: ' Relevance' }
             ],
-            onChange: (value) => { videoOrderBy = value; }
+            onChange: (value) => { orderBy = value; }
         },
         {
             label: 'Video Type:',
@@ -103,6 +103,10 @@ function showVideoOverlay(title, thumbnail, videoUrl) {
         overlay = document.createElement('div');
         overlay.id = 'video-overlay';
         document.body.appendChild(overlay);
+        // Prevent clicks on overlay from bubbling to map
+        overlay.addEventListener('click', (e) => {
+            e.stopPropagation();
+        });
     }
 
     const videoId = getVideoIdFromUrl(videoUrl);
@@ -128,7 +132,7 @@ function showVideoOverlay(title, thumbnail, videoUrl) {
 
 async function getVideo(latitude, longitude) {
     try {
-        const response = await fetch(`/api/video/${latitude}/${longitude}?orderBy=${videoOrderBy}&videoType=${videoType}`);
+        const response = await fetch(`/api/video/${latitude}/${longitude}?orderBy=${orderBy}&videoType=${videoType}`);
         const data = await response.json();
 
         if (response.ok && data.video_found) {
