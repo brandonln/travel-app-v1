@@ -1,6 +1,6 @@
 from flask import Flask, jsonify, render_template, request
 from flask_cors import CORS
-from search import _get_location, _get_video
+from search import _get_location, _get_video, YouTubeAPIError, NetworkError
 
 app = Flask(__name__, static_folder='static', static_url_path='/static')
 CORS(app)
@@ -30,7 +30,17 @@ def get_video(latitude, longitude):
     order_by = request.args.get('orderBy', 'date')
     video_type = request.args.get('videoType', 'vlog')
 
-    video = _get_video(f"{location} ", video_type, order_by)
+    try:
+        video = _get_video(f"{location} ", video_type, order_by)
+    except YouTubeAPIError as e:
+        return jsonify({
+            "youtube_error": True,
+            "status_code": e.status_code,
+            "reason": e.reason,
+            "message": e.message
+        }), 200
+    except NetworkError:
+        return jsonify({"network_error": True}), 200
 
     if not video:
         return jsonify({"location_found": True, "video_found": False}), 200

@@ -10,6 +10,7 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 
 let orderBy = 'date';
 let videoType = 'vlog';
+let loadTimeoutId = null;
 
 const OptionsControl = L.Control.extend({
     options: {
@@ -78,24 +79,6 @@ function getVideoIdFromUrl(url) {
     return match ? match[1] : null;
 }
 
-function fadeOutOverlay(overlay, callback) {
-    overlay.classList.add('fade-out');
-    setTimeout(() => {
-        overlay.classList.remove('fade-out');
-        if (callback) callback();
-    }, 500);
-}
-
-function closeVideoOverlay() {
-    const overlay = document.getElementById('video-overlay');
-    if (overlay && overlay.classList.contains('show')) {
-        overlay.classList.remove('show');
-        fadeOutOverlay(overlay, () => {
-            overlay.innerHTML = '';
-        });
-    }
-}
-
 function showVideoOverlay(title, thumbnail, videoUrl) {
     let overlay = document.getElementById('video-overlay');
 
@@ -130,12 +113,41 @@ function showVideoOverlay(title, thumbnail, videoUrl) {
     overlay.classList.add('show');
 }
 
+function fadeOutOverlay(overlay, callback) {
+    overlay.classList.add('fade-out');
+    setTimeout(() => {
+        overlay.classList.remove('fade-out');
+        if (callback) callback();
+    }, 500);
+}
+
+function closeVideoOverlay() {
+    const overlay = document.getElementById('video-overlay');
+    if (overlay && overlay.classList.contains('show')) {
+        overlay.classList.remove('show');
+        fadeOutOverlay(overlay, () => {
+            overlay.innerHTML = '';
+        });
+    }
+}
+
 async function getVideo(latitude, longitude) {
     try {
         const response = await fetch(`/api/video/${latitude}/${longitude}?orderBy=${orderBy}&videoType=${videoType}`);
         const data = await response.json();
 
-        if (response.ok && data.video_found) {
+        if (data.youtube_error) {
+            console.error(`YouTube API Error (${data.status_code}):`, data.reason);
+            if (data.reason === "quotaExceeded") {
+                showNotification('Daily limit exceeded. Try again tomorrow.');
+            } else {
+                showNotification('Sorry, we need to fix this!');
+            }
+        }
+        else if (data.network_error) {
+            showNotification('Connection error.');
+        }
+        else if (response.ok && data.video_found) {
             showVideoOverlay(data.title, data.thumbnail, data.url);
         }
         else if (!data.location_found) {
@@ -151,7 +163,11 @@ async function getVideo(latitude, longitude) {
 }
 
 function handleMapInteraction(e) {
+    clearTimeout(loadTimeoutId);
     const overlay = document.getElementById('video-overlay');
+    const notification = document.getElementById('notification');
+
+    notification.classList.remove('show', 'load');
 
     // If overlay is visible, close it instead of fetching a new video
     if (overlay && overlay.classList.contains('show')) {
@@ -170,7 +186,7 @@ map.on('dragstart', closeVideoOverlay);
 map.on('zoomstart', closeVideoOverlay);
 
 window.addEventListener('load', () => {
-    setTimeout(() => {
+    loadTimeoutId = setTimeout(() => {
         const notification = document.getElementById('notification');
         notification.classList.add('load');
         showNotification('Click anywhere for a video', 10000);

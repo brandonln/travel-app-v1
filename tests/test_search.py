@@ -7,7 +7,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 import requests
-from search import _get_location, _get_video
+from search import _get_location, _get_video, YouTubeAPIError
 
 
 class TestGetLocation(unittest.TestCase):
@@ -194,12 +194,22 @@ class TestGetVideo(unittest.TestCase):
     @patch('search.api_key', 'test-key')
     @patch('search.requests.get')
     def test_get_video_http_error(self, mock_get):
-        """Test handling of HTTP errors."""
-        mock_get.return_value.raise_for_status.side_effect = requests.exceptions.HTTPError("403")
+        """Test that HTTP errors are raised as YouTubeAPIError."""
+        mock_response = mock_get.return_value
+        http_error = requests.exceptions.HTTPError("403")
+        http_error.response = mock_response
+        mock_response.status_code = 403
+        mock_response.raise_for_status.side_effect = http_error
+        mock_response.json.return_value = {
+            "error": {
+                "code": 403,
+                "message": "Forbidden",
+                "errors": [{"reason": "forbidden"}]
+            }
+        }
 
-        result = _get_video("Tokyo")
-
-        self.assertIsNone(result)
+        with self.assertRaises(YouTubeAPIError):
+            _get_video("Tokyo")
 
     @patch('search.api_key', 'test-key')
     @patch('search.requests.get')

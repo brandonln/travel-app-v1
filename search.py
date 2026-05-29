@@ -25,8 +25,8 @@ def _get_location(latitude, longitude):
         address = data.get("address", {})
 
         location = (
-                address.get("city") or 
-                address.get("town") or 
+                address.get("city") or
+                address.get("town") or
                 address.get("village")
         )
 
@@ -34,7 +34,6 @@ def _get_location(latitude, longitude):
 
     except requests.exceptions.RequestException as e:
         return None
-
 
 
 def _get_video(location, vid_type="vlog", order="date"):
@@ -69,5 +68,37 @@ def _get_video(location, vid_type="vlog", order="date"):
 
         return {"title": title, "url": url, "thumbnail": thumbnail_url}
 
+    except requests.exceptions.HTTPError as e:
+        try:
+            error_data = e.response.json().get("error", {})
+            error_reason = error_data.get("errors", [{}])[0].get("reason", "")
+            error_message = error_data.get("message", "Unknown error")
+            status_code = e.response.status_code
+
+            if error_reason == "quotaExceeded":
+                raise QuotaExceededError(status_code, error_reason, error_message)
+            else:
+                raise YouTubeAPIError(status_code, error_reason, error_message)
+        except (ValueError, KeyError, IndexError):
+            raise YouTubeAPIError(e.response.status_code, "unknown", str(e))
     except requests.exceptions.RequestException as e:
-        return None
+        raise NetworkError("Failed to fetch video")
+
+
+class YouTubeAPIError(Exception):
+    """Raised when YouTube API returns an error."""
+    def __init__(self, status_code, reason, message):
+        self.status_code = status_code
+        self.reason = reason
+        self.message = message
+        super().__init__(f"{status_code} {reason}: {message}")
+
+
+class QuotaExceededError(YouTubeAPIError):
+    """Raised when YouTube API quota is exceeded."""
+    pass
+
+
+class NetworkError(Exception):
+    """Raised when a network error occurs."""
+    pass
