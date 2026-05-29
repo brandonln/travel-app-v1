@@ -79,6 +79,10 @@ function getVideoIdFromUrl(url) {
     return match ? match[1] : null;
 }
 
+function isMobileDevice() {
+    return window.innerWidth <= 768;
+}
+
 function showVideoOverlay(title, thumbnail, videoUrl) {
     let overlay = document.getElementById('video-overlay');
 
@@ -148,7 +152,11 @@ async function getVideo(latitude, longitude) {
             showNotification('Connection error.');
         }
         else if (response.ok && data.video_found) {
-            showVideoOverlay(data.title, data.thumbnail, data.url);
+            if (isMobileDevice()) {
+                showVideoOverlay(data.title, data.thumbnail, data.url);
+            } else {
+                window.open(data.url, '_blank');
+            }
         }
         else if (!data.location_found) {
             showNotification('Try a different location...');
