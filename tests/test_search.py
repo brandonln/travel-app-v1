@@ -7,7 +7,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 import requests
-from search import _get_location, _get_video
+from search import _get_location, _get_video, NominatimAPIError, YouTubeAPIError, NetworkError
 
 
 class TestGetLocation(unittest.TestCase):
@@ -95,18 +95,20 @@ class TestGetLocation(unittest.TestCase):
         """Test handling of request exceptions."""
         mock_get.side_effect = requests.exceptions.RequestException("API Error")
 
-        result = _get_location(1.0, 101.0)
-
-        self.assertIsNone(result)
+        with self.assertRaises(NetworkError):
+            _get_location(1.0, 101.0)
 
     @patch('search.requests.get')
     def test_get_location_http_error(self, mock_get):
         """Test handling of HTTP errors."""
-        mock_get.return_value.raise_for_status.side_effect = requests.exceptions.HTTPError("404")
+        mock_response = mock_get.return_value
+        http_error = requests.exceptions.HTTPError("404")
+        http_error.response = mock_response
+        mock_response.status_code = 404
+        mock_response.raise_for_status.side_effect = http_error
 
-        result = _get_location(1.0, 101.0)
-
-        self.assertIsNone(result)
+        with self.assertRaises(NominatimAPIError):
+            _get_location(1.0, 101.0)
 
     @patch('search.requests.get')
     def test_get_location_sends_correct_params(self, mock_get):
@@ -134,7 +136,12 @@ class TestGetVideo(unittest.TestCase):
             "items": [
                 {
                     "id": {"videoId": "dQw4w9WgXcQ"},
-                    "snippet": {"title": "Amazing Walking Tour"}
+                    "snippet": {
+                        "title": "Amazing Walking Tour",
+                        "thumbnails": {
+                            "default": {"url": "https://i.ytimg.com/vi/dQw4w9WgXcQ/default.jpg"}
+                        }
+                    }
                 }
             ]
         }
@@ -145,6 +152,7 @@ class TestGetVideo(unittest.TestCase):
         self.assertIsNotNone(result)
         self.assertEqual(result['title'], "Amazing Walking Tour")
         self.assertEqual(result['url'], "https://youtube.com/watch?v=dQw4w9WgXcQ")
+        self.assertIsNotNone(result['thumbnail'])
 
     @patch('search.api_key', None)
     def test_get_video_no_api_key(self):
@@ -181,26 +189,43 @@ class TestGetVideo(unittest.TestCase):
         """Test handling of request exceptions."""
         mock_get.side_effect = requests.exceptions.RequestException("API Error")
 
-        result = _get_video("Bangkok")
-
-        self.assertIsNone(result)
+        with self.assertRaises(NetworkError):
+            _get_video("Bangkok")
 
     @patch('search.api_key', 'test-key')
     @patch('search.requests.get')
     def test_get_video_http_error(self, mock_get):
-        """Test handling of HTTP errors."""
-        mock_get.return_value.raise_for_status.side_effect = requests.exceptions.HTTPError("403")
+        """Test that HTTP errors are raised as YouTubeAPIError."""
+        mock_response = mock_get.return_value
+        http_error = requests.exceptions.HTTPError("403")
+        http_error.response = mock_response
+        mock_response.status_code = 403
+        mock_response.raise_for_status.side_effect = http_error
+        mock_response.json.return_value = {
+            "error": {
+                "code": 403,
+                "message": "Forbidden",
+                "errors": [{"reason": "forbidden"}]
+            }
+        }
 
-        result = _get_video("Tokyo")
-
-        self.assertIsNone(result)
+        with self.assertRaises(YouTubeAPIError):
+            _get_video("Tokyo")
 
     @patch('search.api_key', 'test-key')
     @patch('search.requests.get')
     def test_get_video_custom_parameters(self, mock_get):
         """Test custom vid_type and order parameters."""
         mock_get.return_value.json.return_value = {
-            "items": [{"id": {"videoId": "id"}, "snippet": {"title": "Title"}}]
+            "items": [
+                {
+                    "id": {"videoId": "id"},
+                    "snippet": {
+                        "title": "Title",
+                        "thumbnails": {"default": {"url": "https://example.com/image.jpg"}}
+                    }
+                }
+            ]
         }
         mock_get.return_value.raise_for_status.return_value = None
 
@@ -215,7 +240,15 @@ class TestGetVideo(unittest.TestCase):
     def test_get_video_sends_correct_params(self, mock_get):
         """Test that correct parameters are sent to YouTube API."""
         mock_get.return_value.json.return_value = {
-            "items": [{"id": {"videoId": "id"}, "snippet": {"title": "Title"}}]
+            "items": [
+                {
+                    "id": {"videoId": "id"},
+                    "snippet": {
+                        "title": "Title",
+                        "thumbnails": {"default": {"url": "https://example.com/image.jpg"}}
+                    }
+                }
+            ]
         }
         mock_get.return_value.raise_for_status.return_value = None
 

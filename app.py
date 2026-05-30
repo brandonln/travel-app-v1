@@ -1,92 +1,124 @@
-import os
 import logging
-from flask import Flask, jsonify, render_template, request
-from flask_cors import CORS
-from flask_limiter import Limiter
-from flask_limiter.util import get_remote_address
-from search import _get_location, _get_video
+import os
+from dotenv import load_dotenv
+from flask import Flask, jsonify, render_template, request, send_from_directory
+from flask_talisman import Talisman
+from werkzeug.middleware.proxy_fix import ProxyFix
+from search import _get_location, _get_video, APIError, YouTubeAPIError, NetworkError
 
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+app = Flask(__name__, static_folder='static', static_url_path='/static')
+
+
+
+
+# Configure trusted hosts for host header validation
+trusted_hosts = ['localhost', '127.0.0.1']
+if os.getenv('VERCEL_ENV') == 'production':
+    custom_domain = os.getenv('VERCEL_PROJECT_PRODUCTION_URL')
+    if custom_domain:
+        trusted_hosts.extend([custom_domain, f'www.{custom_domain}'])
+elif os.getenv('VERCEL_ENV') == 'preview':
+    trusted_hosts.extend(['*.vercel.app', os.getenv('VERCEL_URL', '')])
+else:
+    trusted_hosts.extend(['localhost:*', '127.0.0.1:*'])
+
+app.config['TRUSTED_HOSTS'] = trusted_hosts
+
+
+
+# Use ProxyFix for Vercel's reverse proxy infrastructure
+app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1)
+
+is_production = os.getenv('VERCEL_ENV') == 'production' or os.getenv('FLASK_ENV') == 'production'
+
+Talisman(
+    app,
+    force_https=is_production,
+    content_security_policy={
+        'default-src': "'self'",
+        'script-src': ["'self'", "cdnjs.cloudflare.com", "vercel.live"],
+        'style-src': ["'self'", "cdnjs.cloudflare.com"],
+        'img-src': ["'self'", "*.tile.openstreetmap.org", "youtube.com", "*.ytimg.com"],
+        'frame-src': ["'self'", "youtube.com", "www.youtube.com", "vercel.live"],
+        'connect-src': ["'self'", "nominatim.openstreetmap.org", "www.googleapis.com"]
+    }
 )
+
+
+app.config['MAX_CONTENT_LENGTH'] = 1 * 1024 * 1024  # 1MB max request size
+app.config['MAX_FORM_MEMORY_SIZE'] = 1 * 1024 * 1024  # 1MB max form data
+
+load_dotenv()
 logger = logging.getLogger(__name__)
+console_handler = logging.StreamHandler()
+console_handler.setLevel(logging.INFO)
 
-app = Flask(__name__)
-app.config['MAX_CONTENT_LENGTH'] = 1 * 1024 * 1024  # 1 MB max request size
-
-allowed_origins = [
-    'http://localhost:3000',
-    'http://localhost:8000',
-]
-
-vercel_url = os.getenv('VERCEL_URL')
-if vercel_url:
-    allowed_origins.append(f'https://{vercel_url}')
-
-CORS(app, resources={r"/api/*": {"origins": allowed_origins}})
-
-limiter = Limiter(
-    app=app,
-    key_func=get_remote_address,
-    default_limits=["500 per day", "100 per hour"]
-)
-
-@app.errorhandler(429)
-def ratelimit_handler(e):
-    logger.warning(f'Rate limit exceeded from {request.remote_addr}')
-    return jsonify({"error": "Rate limit exceeded"}), 429
-
-@app.errorhandler(413)
-def request_too_large(e):
-    logger.warning(f'Request payload too large from {request.remote_addr}')
-    return jsonify({"error": "Request payload too large"}), 413
-
-@app.errorhandler(500)
-def internal_error(e):
-    logger.error(f'Internal server error: {e}')
-    return jsonify({"error": "Internal server error"}), 500
+def validate_coordinates(latitude, longitude):
+    """Validate and convert latitude and longitude to floats."""
+    try:
+        lat = float(latitude)
+        lon = float(longitude)
+        if not (-90 <= lat <= 90 and -180 <= lon <= 180):
+            return None, None
+        return lat, lon
+    except ValueError:
+        return None, None
 
 @app.route('/')
 def index():
     return render_template('index.html')
-    
+
+@app.route('/favicon.ico')
+def favicon():
+    return send_from_directory(os.path.join(app.root_path, 'static'),
+                               'favicon.ico', mimetype='image/vnd.microsoft.icon')
+
 @app.route('/api/video/<latitude>/<longitude>')
 @limiter.limit("100 per hour; 500 per day")
 def get_video(latitude, longitude):
-    try:
-        latitude = float(latitude)
-        longitude = float(longitude)
-    except ValueError:
+    lat, lon = validate_coordinates(latitude, longitude)
+    if lat is None or lon is None:
         return jsonify({"error": "Invalid coordinates"}), 400
 
-    location = _get_location(latitude, longitude)
+    try:
+        location = _get_location(lat, lon)
+    except APIError as e:
+        logger.error(f"Location service error: {e.message}")
+        return jsonify({"error": "Location service unavailable"}), e.status_code
+
 
     if not location:
         return jsonify({"location_found": False}), 200
-
-    allowed_order = ['date', 'relevance', 'viewCount']
-    allowed_types = ['vlog', 'walking tour']
+    
+    VALID_ORDER_BY = {'date', 'relevance'}
+    VALID_VIDEO_TYPES = {'vlog', 'walking tour'}
 
     order_by = request.args.get('orderBy', 'date')
     video_type = request.args.get('videoType', 'vlog')
 
-    if order_by not in allowed_order:
-        order_by = 'date'
-    if video_type not in allowed_types:
-        video_type = 'vlog'
+    if order_by not in VALID_ORDER_BY:
+        return jsonify({"error": "Invalid orderBy parameter"}), 400
 
-    video = _get_video(f"{location} ", video_type, order_by)
+    if video_type not in VALID_VIDEO_TYPES:
+        return jsonify({"error": "Invalid videoType parameter"}), 400
+
+    try:
+        video = _get_video(f"{location} ", video_type, order_by)
+    except YouTubeAPIError as e:
+        logger.error(f"YouTube API Error: {e.message}")
+        return jsonify({"error": "YouTube API unavailable"}), e.status_code
+    except NetworkError as e:
+        logger.error(f"Network error: {e.message}")
+        return jsonify({"error": "Network error"}), e.status_code
 
     if not video:
-        return jsonify({"video_found": False}), 200
-    
+        return jsonify({"location_found": True, "video_found": False}), 200
+
     return jsonify({
+        "location_found": True,
         "video_found": True,
         "location": location,
         "title": video["title"],
-        "url": video["url"]
+        "url": video["url"],
+        "thumbnail": video["thumbnail"]
     })
-
-if __name__ == "__main__":
-    app.run(debug=False, port=8000)

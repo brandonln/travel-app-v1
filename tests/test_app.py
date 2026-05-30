@@ -7,6 +7,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from app import app
+from search import NominatimAPIError
 
 
 class TestFlaskApp(unittest.TestCase):
@@ -31,7 +32,8 @@ class TestFlaskApp(unittest.TestCase):
         mock_get_location.return_value = "Bangkok"
         mock_get_video.return_value = {
             "title": "Amazing Walking Tour",
-            "url": "https://youtube.com/watch?v=dQw4w9WgXcQ"
+            "url": "https://youtube.com/watch?v=dQw4w9WgXcQ",
+            "thumbnail": "https://i.ytimg.com/vi/dQw4w9WgXcQ/default.jpg"
         }
 
         response = self.client.get('/api/video/13.7563/100.5018')
@@ -56,6 +58,15 @@ class TestFlaskApp(unittest.TestCase):
         data = response.get_json()
         self.assertFalse(data['location_found'])
 
+    @patch('app._get_location')
+    def test_video_api_nominatim_error(self, mock_get_location):
+        """Test GET /api/video returns error when Nominatim API fails."""
+        mock_get_location.side_effect = NominatimAPIError(503, "Service unavailable")
+
+        response = self.client.get('/api/video/0.0/0.0')
+
+        self.assertEqual(response.status_code, 503)
+
     @patch('app._get_video')
     @patch('app._get_location')
     def test_video_api_video_not_found(self, mock_get_location, mock_get_video):
@@ -79,17 +90,21 @@ class TestFlaskApp(unittest.TestCase):
 
     @patch('app._get_video')
     @patch('app._get_location')
-    def test_video_api_calls_with_walking_tour(self, mock_get_location, mock_get_video):
-        """Test GET /api/video calls _get_video with 'walking tour' type."""
+    def test_video_api_calls_with_custom_video_type(self, mock_get_location, mock_get_video):
+        """Test GET /api/video passes videoType query parameter to _get_video."""
         mock_get_location.return_value = "Tokyo"
-        mock_get_video.return_value = {"title": "Tour", "url": "http://example.com"}
+        mock_get_video.return_value = {
+            "title": "Tour",
+            "url": "http://example.com",
+            "thumbnail": "https://example.com/image.jpg"
+        }
 
-        self.client.get('/api/video/35.6762/139.6503')
+        self.client.get('/api/video/35.6762/139.6503?videoType=walking+tour')
 
         # Verify _get_video was called with 'vlog' as default vid_type
         args, kwargs = mock_get_video.call_args
         self.assertEqual(args[0], "Tokyo ")
-        self.assertEqual(args[1], "vlog")
+        self.assertEqual(args[1], "walking tour")
 
     def test_index_returns_html(self):
         """Test that index route returns HTML content."""
@@ -117,7 +132,8 @@ class TestFlaskApp(unittest.TestCase):
         mock_get_location.return_value = "Bangkok"
         mock_get_video.return_value = {
             "title": "Walking Tour",
-            "url": "https://youtube.com/watch?v=id"
+            "url": "https://youtube.com/watch?v=id",
+            "thumbnail": "https://i.ytimg.com/vi/id/default.jpg"
         }
 
         response = self.client.get('/api/video/13.7563/100.5018')
@@ -128,10 +144,11 @@ class TestFlaskApp(unittest.TestCase):
         self.assertIn('location', data)
         self.assertIn('title', data)
         self.assertIn('url', data)
+        self.assertIn('thumbnail', data)
         # Verify no unexpected fields
         self.assertEqual(
             set(data.keys()),
-            {'video_found', 'location', 'title', 'url'}
+            {'location_found', 'video_found', 'location', 'title', 'url', 'thumbnail'}
         )
 
     @patch('app._get_location')
@@ -173,7 +190,8 @@ class TestFlaskApp(unittest.TestCase):
         mock_get_location.return_value = "Tokyo"
         mock_get_video.return_value = {
             "title": "Tour",
-            "url": "https://youtube.com/watch?v=abc123"
+            "url": "https://youtube.com/watch?v=abc123",
+            "thumbnail": "https://i.ytimg.com/vi/abc123/default.jpg"
         }
 
         response = self.client.get('/api/video/35.6762/139.6503')

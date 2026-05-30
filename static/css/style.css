@@ -62,3 +62,44 @@ body {
 .leaflet-bar-part.active {
     background-color: #d3d3d3;
 }
+
+#video-overlay {
+    position: fixed;
+    display: block;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+    z-index: 2000;
+    max-width: 340px;
+    width: calc(100% - 32px);
+    overflow: hidden;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease-in-out;
+}
+
+#video-overlay.show {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+#video-overlay.fade-out {
+    animation: fadeOut 0.5s ease-in-out forwards;
+}
+
+.video-container {
+  width: 100%; 
+
+}
+
+.video {
+    padding: 10px;
+    aspect-ratio: 16 / 9;
+}
+
+
+
+
