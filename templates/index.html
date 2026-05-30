@@ -8,17 +8,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
-    <script>
-        function updateFavicon() {
-            const isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
-            const favicon = document.getElementById('favicon');
-            favicon.href = isDarkMode
-                ? "{{ url_for('static', filename='favicon_white.ico') }}"
-                : "{{ url_for('static', filename='favicon_black.ico') }}";
-        }
-        updateFavicon();
-        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', updateFavicon);
-    </script>
+    <script src="{{ url_for('static', filename='js/favicon.js') }}"></script>
 </head>
 <body>
     <div id="notification"></div>
