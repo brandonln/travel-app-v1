@@ -37,7 +37,7 @@ Talisman(
         'script-src': ["'self'", "cdnjs.cloudflare.com", "vercel.live"],
         'style-src': ["'self'", "cdnjs.cloudflare.com"],
         'img-src': ["'self'", "*.tile.openstreetmap.org", "youtube.com", "*.ytimg.com"],
-        'frame-src': ["'self'", "youtube.com", "www.youtube.com"],
+        'frame-src': ["'self'", "youtube.com", "www.youtube.com", "vercel.live"],
         'connect-src': ["'self'", "nominatim.openstreetmap.org", "www.googleapis.com"]
     }
 )
