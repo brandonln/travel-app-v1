@@ -92,7 +92,10 @@ body {
 
 .video-container {
   width: 100%; 
+}
 
+.video-container.loading {
+    opacity:0;
 }
 
 .video {
