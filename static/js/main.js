@@ -142,7 +142,7 @@ async function getVideo(latitude, longitude) {
 
         if (data.nominatim_error) {
             console.error(`Location service error (${data.status_code}):`, data.message);
-            showNotification('Unable to identify location. Try again.');
+            showNotification('Sorry, we need to fix this!');
         }
         else if (data.youtube_error) {
             console.error(`YouTube API Error (${data.status_code}):`, data.reason);
