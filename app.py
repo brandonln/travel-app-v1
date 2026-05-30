@@ -9,6 +9,8 @@ from search import _get_location, _get_video, APIError, YouTubeAPIError, Network
 app = Flask(__name__, static_folder='static', static_url_path='/static')
 
 
+
+
 # Configure trusted hosts for host header validation
 trusted_hosts = ['localhost', '127.0.0.1']
 if os.getenv('VERCEL_ENV') == 'production':
@@ -65,6 +67,11 @@ def validate_coordinates(latitude, longitude):
 @app.route('/')
 def index():
     return render_template('index.html')
+
+@app.route('/favicon.ico')
+def favicon():
+    return send_from_directory(os.path.join(app.root_path, 'static'),
+                               'favicon.ico', mimetype='image/vnd.microsoft.icon')
 
 @app.route('/api/video/<latitude>/<longitude>')
 def get_video(latitude, longitude):

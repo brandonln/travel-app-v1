@@ -18,6 +18,7 @@ const OptionsControl = L.Control.extend({
     },
     onAdd: function(map) {
         const container = L.DomUtil.create('div', 'leaflet-control leaflet-bar');
+        L.DomEvent.disableClickPropagation(container);
 
         this.options.groups.forEach(group => {
             const label = L.DomUtil.create('div', 'leaflet-bar-part', container);
