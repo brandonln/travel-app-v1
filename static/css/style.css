@@ -47,6 +47,10 @@ body {
     padding: 6px;
 }
 
+.mobile {
+    padding-bottom: env(safe-area-inset-bottom);
+}
+
 .leaflet-bar-part {
     padding: 5px 8px;
     font-size: 13px;
