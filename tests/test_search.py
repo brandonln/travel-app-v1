@@ -7,7 +7,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 import requests
-from search import _get_location, _get_video, YouTubeAPIError
+from search import _get_location, _get_video, NominatimAPIError, YouTubeAPIError, NetworkError
 
 
 class TestGetLocation(unittest.TestCase):
@@ -95,18 +95,20 @@ class TestGetLocation(unittest.TestCase):
         """Test handling of request exceptions."""
         mock_get.side_effect = requests.exceptions.RequestException("API Error")
 
-        result = _get_location(1.0, 101.0)
-
-        self.assertIsNone(result)
+        with self.assertRaises(NominatimAPIError):
+            _get_location(1.0, 101.0)
 
     @patch('search.requests.get')
     def test_get_location_http_error(self, mock_get):
         """Test handling of HTTP errors."""
-        mock_get.return_value.raise_for_status.side_effect = requests.exceptions.HTTPError("404")
+        mock_response = mock_get.return_value
+        http_error = requests.exceptions.HTTPError("404")
+        http_error.response = mock_response
+        mock_response.status_code = 404
+        mock_response.raise_for_status.side_effect = http_error
 
-        result = _get_location(1.0, 101.0)
-
-        self.assertIsNone(result)
+        with self.assertRaises(NominatimAPIError):
+            _get_location(1.0, 101.0)
 
     @patch('search.requests.get')
     def test_get_location_sends_correct_params(self, mock_get):
@@ -187,9 +189,8 @@ class TestGetVideo(unittest.TestCase):
         """Test handling of request exceptions."""
         mock_get.side_effect = requests.exceptions.RequestException("API Error")
 
-        result = _get_video("Bangkok")
-
-        self.assertIsNone(result)
+        with self.assertRaises(NetworkError):
+            _get_video("Bangkok")
 
     @patch('search.api_key', 'test-key')
     @patch('search.requests.get')

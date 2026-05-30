@@ -7,6 +7,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from app import app
+from search import NominatimAPIError
 
 
 class TestFlaskApp(unittest.TestCase):
@@ -56,6 +57,19 @@ class TestFlaskApp(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         data = response.get_json()
         self.assertFalse(data['location_found'])
+
+    @patch('app._get_location')
+    def test_video_api_nominatim_error(self, mock_get_location):
+        """Test GET /api/video returns error when Nominatim API fails."""
+        mock_get_location.side_effect = NominatimAPIError(503, "Service unavailable")
+
+        response = self.client.get('/api/video/0.0/0.0')
+
+        self.assertEqual(response.status_code, 200)
+        data = response.get_json()
+        self.assertTrue(data['nominatim_error'])
+        self.assertEqual(data['status_code'], 503)
+        self.assertEqual(data['message'], "Service unavailable")
 
     @patch('app._get_video')
     @patch('app._get_location')

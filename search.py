@@ -32,8 +32,10 @@ def _get_location(latitude, longitude):
 
         return location if location else None
 
+    except requests.exceptions.HTTPError as e:
+        raise NominatimAPIError(e.response.status_code, str(e))
     except requests.exceptions.RequestException as e:
-        return None
+        raise NominatimAPIError(0, f"Network error: {str(e)}")
 
 
 def _get_video(location, vid_type="vlog", order="date"):
@@ -83,6 +85,14 @@ def _get_video(location, vid_type="vlog", order="date"):
             raise YouTubeAPIError(e.response.status_code, "unknown", str(e))
     except requests.exceptions.RequestException as e:
         raise NetworkError("Failed to fetch video")
+
+
+class NominatimAPIError(Exception):
+    """Raised when Nominatim API returns an error."""
+    def __init__(self, status_code, message):
+        self.status_code = status_code
+        self.message = message
+        super().__init__(f"{status_code}: {message}")
 
 
 class YouTubeAPIError(Exception):

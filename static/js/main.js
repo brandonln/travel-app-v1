@@ -140,7 +140,11 @@ async function getVideo(latitude, longitude) {
         const response = await fetch(`/api/video/${latitude}/${longitude}?orderBy=${orderBy}&videoType=${videoType}`);
         const data = await response.json();
 
-        if (data.youtube_error) {
+        if (data.nominatim_error) {
+            console.error(`Location service error (${data.status_code}):`, data.message);
+            showNotification('Unable to identify location. Try again.');
+        }
+        else if (data.youtube_error) {
             console.error(`YouTube API Error (${data.status_code}):`, data.reason);
             if (data.reason === "quotaExceeded") {
                 showNotification('Daily limit exceeded. Try again tomorrow.');

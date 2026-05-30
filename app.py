@@ -1,6 +1,6 @@
 from flask import Flask, jsonify, render_template, request
 from flask_cors import CORS
-from search import _get_location, _get_video, YouTubeAPIError, NetworkError
+from search import _get_location, _get_video, NominatimAPIError, YouTubeAPIError, NetworkError
 
 app = Flask(__name__, static_folder='static', static_url_path='/static')
 CORS(app)
@@ -22,7 +22,14 @@ def get_video(latitude, longitude):
     if lat is None or lon is None:
         return jsonify({"error": "Invalid coordinates"}), 400
 
-    location = _get_location(lat, lon)
+    try:
+        location = _get_location(lat, lon)
+    except NominatimAPIError as e:
+        return jsonify({
+            "nominatim_error": True,
+            "status_code": e.status_code,
+            "message": e.message
+        }), 200
 
     if not location:
         return jsonify({"location_found": False}), 200
