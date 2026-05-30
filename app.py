@@ -4,10 +4,20 @@ from flask import Flask, jsonify, render_template, request
 from flask_cors import CORS
 from search import _get_location, _get_video, NominatimAPIError, YouTubeAPIError, NetworkError
 
-domain = os.getenv("DOMAIN")
-
 app = Flask(__name__, static_folder='static', static_url_path='/static')
-CORS(app, resource={r"/api/*": {"origins": [domain]}})
+
+load_dotenv()
+  
+cors_dev = os.getenv('CORS_DEV_ORIGIN')
+cors_prod = os.getenv('CORS_PROD_ORIGIN')
+  
+allowed_origins = [cors_dev]
+  
+if os.getenv('ENVIRONMENT') == 'production':
+    allowed_origins = [cors_prod]
+      
+CORS(app, resources={r"/api/*": {"origins": allowed_origins}})
+
 
 def validate_coordinates(latitude, longitude):
     """Validate and convert latitude and longitude to floats."""

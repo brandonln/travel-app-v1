@@ -99,19 +99,20 @@ function showVideoOverlay(title, thumbnail, videoUrl) {
     const videoId = getVideoIdFromUrl(videoUrl);
     const embedUrl = videoId ? `https://www.youtube.com/embed/${videoId}?autoplay=1` : videoUrl;
 
-    overlay.innerHTML = `
-        <div class="video-container">
-            <iframe
-                width="100%"
-                height="200"
-                src="${embedUrl}"
-                title="${title}"
-                frameborder="0"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowfullscreen>
-            </iframe>
-        </div>
-    `;
+    const video_container = document.createElement('div');
+    video_container.classList.add('video-container');
+
+    const iframe = document.createElement('iframe');
+    
+    iframe.setAttribute('width',"100%");
+    iframe.setAttribute('src', embedUrl);
+    iframe.setAttribute('title', title);
+    iframe.setAttribute('frameborder',"0");
+    iframe.setAttribute('allow',"autoplay");
+    iframe.classList.add('video');
+
+    video_container.appendChild(iframe);
+    overlay.appendChild(video_container);
 
     overlay.classList.remove('fade-out');
     overlay.classList.add('show');
