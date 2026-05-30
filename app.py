@@ -1,7 +1,7 @@
 import logging
 import os
 from dotenv import load_dotenv
-from flask import Flask, jsonify, render_template, request
+from flask import Flask, jsonify, render_template, request, send_from_directory
 from flask_talisman import Talisman
 from werkzeug.middleware.proxy_fix import ProxyFix
 from search import _get_location, _get_video, APIError, YouTubeAPIError, NetworkError
@@ -61,6 +61,11 @@ def validate_coordinates(latitude, longitude):
         return lat, lon
     except ValueError:
         return None, None
+
+@app.route('/favicon.ico')
+def favicon():
+    return send_from_directory(os.path.join(app.root_path, 'static'),
+                               'favicon_black.ico', mimetype='image/vnd.microsoft.icon')
 
 @app.route('/')
 def index():
