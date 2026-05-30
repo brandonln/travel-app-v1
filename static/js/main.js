@@ -194,7 +194,10 @@ function handleMapInteraction(e) {
         closeVideoOverlay();
     } else {
         // Only fetch video if no overlay is currently displayed
-        getVideo(e.latlng.lat, e.latlng.lng);
+        map.getContainer().style.cursor = 'wait'
+        getVideo(e.latlng.lat, e.latlng.lng).then(() => {
+            map.getContainer().style.cursor = 'auto';
+        });
     }
 }
 
