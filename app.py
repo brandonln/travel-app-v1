@@ -34,7 +34,7 @@ Talisman(
     force_https=is_production,
     content_security_policy={
         'default-src': "'self'",
-        'script-src': ["'self'", "cdnjs.cloudflare.com", "vercel.live/*"],
+        'script-src': ["'self'", "cdnjs.cloudflare.com", "vercel.live"],
         'style-src': ["'self'", "cdnjs.cloudflare.com"],
         'img-src': ["'self'", "*.tile.openstreetmap.org", "youtube.com", "*.ytimg.com"],
         'frame-src': ["'self'", "youtube.com", "www.youtube.com"],
