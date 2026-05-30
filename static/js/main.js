@@ -194,10 +194,20 @@ function handleMapInteraction(e) {
         closeVideoOverlay();
     } else {
         // Only fetch video if no overlay is currently displayed
-        map.getContainer().style.cursor = 'wait'
-        getVideo(e.latlng.lat, e.latlng.lng).then(() => {
-            map.getContainer().style.cursor = 'auto';
-        });
+        if (isMobileDevice()) {
+            const loadingIndicator = document.getElementById('loading-indicator');
+            loadingIndicator.classList.remove('hidden');
+            getVideo(e.latlng.lat, e.latlng.lng).then(() => {
+                loadingIndicator.classList.add('hidden');
+            });
+        }
+        else {
+            map.getContainer().style.cursor = 'wait';
+            getVideo(e.latlng.lat, e.latlng.lng).then(() => {
+                map.getContainer().style.cursor = 'auto';
+            });
+        }
+
     }
 }
 
