@@ -22,9 +22,6 @@ const OptionsControl = L.Control.extend({
     },
     onAdd: function(map) {
         const container = L.DomUtil.create('div', 'leaflet-control leaflet-bar');
-        if isMobileDevice() {
-            container.classList.add('mobile');
-        };
         L.DomEvent.disableClickPropagation(container);
 
         this.options.groups.forEach(group => {
