@@ -1,9 +1,46 @@
 import logging
+import os
 from dotenv import load_dotenv
 from flask import Flask, jsonify, render_template, request
+from flask_talisman import Talisman
+from werkzeug.middleware.proxy_fix import ProxyFix
 from search import _get_location, _get_video, APIError, YouTubeAPIError, NetworkError
 
 app = Flask(__name__, static_folder='static', static_url_path='/static')
+
+# Configure trusted hosts for host header validation
+trusted_hosts = ['localhost', '127.0.0.1']
+if os.getenv('VERCEL_ENV') == 'production':
+    custom_domain = os.getenv('VERCEL_PROJECT_PRODUCTION_URL')
+    if custom_domain:
+        trusted_hosts.extend([custom_domain, f'www.{custom_domain}'])
+elif os.getenv('VERCEL_ENV') == 'preview':
+    trusted_hosts.extend(['*.vercel.app', os.getenv('VERCEL_URL', '')])
+else:
+    trusted_hosts.extend(['localhost:*', '127.0.0.1:*'])
+
+app.config['TRUSTED_HOSTS'] = trusted_hosts
+
+# Use ProxyFix for Vercel's reverse proxy infrastructure
+app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1)
+
+is_production = os.getenv('VERCEL_ENV') == 'production' or os.getenv('FLASK_ENV') == 'production'
+
+Talisman(
+    app,
+    force_https=is_production,
+    content_security_policy={
+        'default-src': "'self'",
+        'script-src': ["'self'", "cdnjs.cloudflare.com"],
+        'style-src': ["'self'", "cdnjs.cloudflare.com"],
+        'img-src': ["'self'", "tile.openstreetmap.org", "youtube.com", "*.ytimg.com"],
+        'frame-src': ["'self'", "youtube.com", "www.youtube.com"],
+        'connect-src': ["'self'", "nominatim.openstreetmap.org", "www.googleapis.com"]
+    }
+)
+
+app.config['MAX_CONTENT_LENGTH'] = 1 * 1024 * 1024  # 1MB max request size
+app.config['MAX_FORM_MEMORY_SIZE'] = 1 * 1024 * 1024  # 1MB max form data
 
 load_dotenv()
 logger = logging.getLogger(__name__)

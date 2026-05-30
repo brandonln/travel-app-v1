@@ -13,6 +13,7 @@ def _get_location(latitude, longitude):
     try:
         response = requests.get(
             "https://nominatim.openstreetmap.org/reverse",
+            timeout=5,
             params={
                 "lat": latitude,
                 "lon": longitude,
@@ -52,7 +53,9 @@ def _get_video(location, vid_type="vlog", order="date"):
         return {"title": title, "url": url, "thumbnail": thumbnail_url}
 
     try:
-        response = requests.get("https://www.googleapis.com/youtube/v3/search", params={
+        response = requests.get("https://www.googleapis.com/youtube/v3/search",
+         timeout=10,
+         params={
             "part": "snippet",
             "q": f"{location} + {vid_type}",
             "order": order,

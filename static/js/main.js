@@ -109,6 +109,8 @@ function showVideoOverlay(title, thumbnail, videoUrl) {
     iframe.setAttribute('title', title);
     iframe.setAttribute('frameborder',"0");
     iframe.setAttribute('allow','autoplay; picture-in-picture');
+    iframe.setAttribute('sandbox', 'allow-scripts allow-same-origin allow-presentation');
+    iframe.setAttribute('referrerpolicy', 'no-referrer');
     iframe.classList.add('video');
 
     video_container.appendChild(iframe);
@@ -200,7 +202,13 @@ map.on('click', handleMapInteraction);
 map.on('tap', handleMapInteraction);
 
 // Close overlay when user interacts with map
-map.on('dragstart', closeVideoOverlay);
+map.on('dragstart', () => {
+    closeVideoOverlay();
+    map.getContainer().style.cursor = 'grabbing';
+});
+map.on('dragend', () => {
+    map.getContainer().style.cursor = 'auto';
+});
 map.on('zoomstart', closeVideoOverlay);
 
 window.addEventListener('load', () => {
