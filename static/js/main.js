@@ -97,7 +97,7 @@ function showVideoOverlay(title, thumbnail, videoUrl) {
     }
 
     const videoId = getVideoIdFromUrl(videoUrl);
-    const embedUrl = videoId ? `https://www.youtube.com/embed/${videoId}?autoplay=1` : videoUrl;
+    const embedUrl = videoId ? `https://www.youtube.com/embed/${videoId}?autoplay=1&fs=0` : videoUrl;
 
     const video_container = document.createElement('div');
     video_container.classList.add('video-container');
@@ -109,8 +109,7 @@ function showVideoOverlay(title, thumbnail, videoUrl) {
     iframe.setAttribute('title', title);
     iframe.setAttribute('frameborder',"0");
     iframe.setAttribute('allow','autoplay; picture-in-picture');
-    iframe.setAttribute('sandbox', 'allow-scripts allow-same-origin allow-presentation');
-    iframe.setAttribute('referrerpolicy', 'no-referrer');
+
     iframe.classList.add('video');
 
     video_container.appendChild(iframe);

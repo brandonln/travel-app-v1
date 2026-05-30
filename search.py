@@ -43,7 +43,7 @@ def _get_location(latitude, longitude):
 def _get_video(location, vid_type="vlog", order="date"):
     """Search for the latest video matching the search term."""
 
-    pause_requests = False
+    pause_requests = True
 
     if pause_requests:
         title="Getting started with Claude.ai"
