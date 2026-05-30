@@ -74,6 +74,7 @@ def favicon():
                                'favicon.ico', mimetype='image/vnd.microsoft.icon')
 
 @app.route('/api/video/<latitude>/<longitude>')
+@limiter.limit("100 per hour; 500 per day")
 def get_video(latitude, longitude):
     lat, lon = validate_coordinates(latitude, longitude)
     if lat is None or lon is None:

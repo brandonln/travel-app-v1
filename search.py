@@ -1,4 +1,5 @@
 import os
+import logging
 import requests
 from dotenv import load_dotenv
 
@@ -6,6 +7,8 @@ load_dotenv()
 api_key = os.getenv("YOUTUBE_API_KEY")
 if not api_key:
     raise RuntimeError("YOUTUBE_API_KEY environment variable is required")
+
+logger = logging.getLogger(__name__)
 
 def _get_location(latitude, longitude):
     """Get the city/town/village from coordinates using Nominatim."""
@@ -19,7 +22,8 @@ def _get_location(latitude, longitude):
                 "lon": longitude,
                 "format": "json"
             },
-            headers={"User-Agent": "travel-app/1.0"}
+            headers={"User-Agent": "travel-app/1.0"},
+            timeout=10
         )
 
         response.raise_for_status()
@@ -63,7 +67,7 @@ def _get_video(location, vid_type="vlog", order="date"):
             "key": api_key,
             "type": "video",
             "videoDuration": "medium"
-        })
+        }, timeout=10)
 
         response.raise_for_status()
         data = response.json()
