@@ -12,12 +12,19 @@ let orderBy = 'date';
 let videoType = 'vlog';
 let loadTimeoutId = null;
 
+function isMobileDevice() {
+    return window.innerWidth <= 768;
+}
+
 const OptionsControl = L.Control.extend({
     options: {
         groups: []
     },
     onAdd: function(map) {
         const container = L.DomUtil.create('div', 'leaflet-control leaflet-bar');
+        if isMobileDevice() {
+            container.classList.add('mobile');
+        };
         L.DomEvent.disableClickPropagation(container);
 
         this.options.groups.forEach(group => {
@@ -78,10 +85,6 @@ function showNotification(message, duration=3000) {
 function getVideoIdFromUrl(url) {
     const match = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\n?#]+)/);
     return match ? match[1] : null;
-}
-
-function isMobileDevice() {
-    return window.innerWidth <= 768;
 }
 
 function showVideoOverlay(title, thumbnail, videoUrl) {
