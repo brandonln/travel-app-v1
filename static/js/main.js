@@ -108,7 +108,7 @@ function showVideoOverlay(title, thumbnail, videoUrl) {
     iframe.setAttribute('src', embedUrl);
     iframe.setAttribute('title', title);
     iframe.setAttribute('frameborder',"0");
-    iframe.setAttribute('allow',"autoplay");
+    iframe.setAttribute('allow','autoplay; picture-in-picture');
     iframe.classList.add('video');
 
     video_container.appendChild(iframe);
@@ -138,7 +138,12 @@ function closeVideoOverlay() {
 
 async function getVideo(latitude, longitude) {
     try {
-        const response = await fetch(`/api/video/${latitude}/${longitude}?orderBy=${orderBy}&videoType=${videoType}`);
+        const params = new URLSearchParams({
+            orderBy: orderBy,
+            videoType: videoType
+        });
+        const response = await fetch(`/api/video/${latitude}/${longitude}?${params}`);
+
         const data = await response.json();
 
         if (data.nominatim_error) {

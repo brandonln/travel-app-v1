@@ -95,7 +95,7 @@ class TestGetLocation(unittest.TestCase):
         """Test handling of request exceptions."""
         mock_get.side_effect = requests.exceptions.RequestException("API Error")
 
-        with self.assertRaises(NominatimAPIError):
+        with self.assertRaises(NetworkError):
             _get_location(1.0, 101.0)
 
     @patch('search.requests.get')

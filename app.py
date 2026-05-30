@@ -1,28 +1,21 @@
-import os
+import logging
 from dotenv import load_dotenv
 from flask import Flask, jsonify, render_template, request
-from flask_cors import CORS
-from search import _get_location, _get_video, NominatimAPIError, YouTubeAPIError, NetworkError
+from search import _get_location, _get_video, APIError, YouTubeAPIError, NetworkError
 
 app = Flask(__name__, static_folder='static', static_url_path='/static')
 
 load_dotenv()
-  
-cors_dev = os.getenv('CORS_DEV_ORIGIN')
-cors_prod = os.getenv('CORS_PROD_ORIGIN')
-  
-allowed_origins = [cors_dev]
-  
-if os.getenv('ENVIRONMENT') == 'production':
-    allowed_origins = [cors_prod]
-      
-CORS(app, resources={r"/api/*": {"origins": allowed_origins}})
-
+logger = logging.getLogger(__name__)
 
 def validate_coordinates(latitude, longitude):
     """Validate and convert latitude and longitude to floats."""
     try:
-        return float(latitude), float(longitude)
+        lat = float(latitude)
+        lon = float(longitude)
+        if not (-90 <= lat <= 90 and -180 <= lon <= 180):
+            return None, None
+        return lat, lon
     except ValueError:
         return None, None
 
@@ -38,12 +31,10 @@ def get_video(latitude, longitude):
 
     try:
         location = _get_location(lat, lon)
-    except NominatimAPIError as e:
-        return jsonify({
-            "nominatim_error": True,
-            "status_code": e.status_code,
-            "message": e.message
-        }), 200
+    except APIError as e:
+        logger.error(f"Location service error: {e.message}")
+        return jsonify({"error": "Location service unavailable"}), e.status_code
+
 
     if not location:
         return jsonify({"location_found": False}), 200
@@ -58,19 +49,16 @@ def get_video(latitude, longitude):
         return jsonify({"error": "Invalid orderBy parameter"}), 400
 
     if video_type not in VALID_VIDEO_TYPES:
-        return jsonify({"error: Invalid orderBy parameter"}), 400
+        return jsonify({"error": "Invalid videoType parameter"}), 400
 
     try:
         video = _get_video(f"{location} ", video_type, order_by)
-    except YouTubefror as e:
-        return jsonify({
-            "youtube_error": True,
-            "status_code": e.status_code,
-            "reason": e.reason,
-            "message": e.message
-        }), 200
-    except NetworkError:
-        return jsonify({"network_error": True}), 200
+    except YouTubeAPIError as e:
+        logger.error(f"YouTube API Error: {e.message}")
+        return jsonify({"error": "YouTube API unavailable"}), e.status_code
+    except NetworkError as e:
+        logger.error(f"Network error: {e.message}")
+        return jsonify({"error": "Network error"}), e.status_code
 
     if not video:
         return jsonify({"location_found": True, "video_found": False}), 200

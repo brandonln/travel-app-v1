@@ -65,11 +65,7 @@ class TestFlaskApp(unittest.TestCase):
 
         response = self.client.get('/api/video/0.0/0.0')
 
-        self.assertEqual(response.status_code, 200)
-        data = response.get_json()
-        self.assertTrue(data['nominatim_error'])
-        self.assertEqual(data['status_code'], 503)
-        self.assertEqual(data['message'], "Service unavailable")
+        self.assertEqual(response.status_code, 503)
 
     @patch('app._get_video')
     @patch('app._get_location')
@@ -109,13 +105,6 @@ class TestFlaskApp(unittest.TestCase):
         args, kwargs = mock_get_video.call_args
         self.assertEqual(args[0], "Tokyo ")
         self.assertEqual(args[1], "walking tour")
-
-    def test_cors_enabled(self):
-        """Test that CORS headers are present in response."""
-        response = self.client.options('/api/location/1.0/101.0')
-
-        # Flask-CORS should be enabled
-        self.assertIn('Access-Control-Allow-Origin', response.headers)
 
     def test_index_returns_html(self):
         """Test that index route returns HTML content."""

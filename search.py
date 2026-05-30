@@ -4,6 +4,8 @@ from dotenv import load_dotenv
 
 load_dotenv()
 api_key = os.getenv("YOUTUBE_API_KEY")
+if not api_key:
+    raise RuntimeError("YOUTUBE_API_KEY environment variable is required")
 
 def _get_location(latitude, longitude):
     """Get the city/town/village from coordinates using Nominatim."""
@@ -35,20 +37,19 @@ def _get_location(latitude, longitude):
     except requests.exceptions.HTTPError as e:
         raise NominatimAPIError(e.response.status_code, str(e))
     except requests.exceptions.RequestException as e:
-        raise NominatimAPIError(0, f"Network error: {str(e)}")
-
+        raise NetworkError("Failed to fetch location")
 
 def _get_video(location, vid_type="vlog", order="date"):
     """Search for the latest video matching the search term."""
 
-    title="Getting started with Claude.ai"
-    url="https://www.youtube.com/watch?v=0vZ_UVLhSQQ"
-    thumbnail_url="https://youtube.com<0vZ_UVLhSQQ>/sddefault.jpg"
+    pause_requests = False
 
-    return {"title": title, "url": url, "thumbnail": thumbnail_url}
-
-    if not api_key:
-        return None
+    if pause_requests:
+        title="Getting started with Claude.ai"
+        url="https://www.youtube.com/watch?v=0vZ_UVLhSQQ"
+        thumbnail_url="https://youtube.com<0vZ_UVLhSQQ>/sddefault.jpg"
+    
+        return {"title": title, "url": url, "thumbnail": thumbnail_url}
 
     try:
         response = requests.get("https://www.googleapis.com/youtube/v3/search", params={
@@ -93,21 +94,28 @@ def _get_video(location, vid_type="vlog", order="date"):
         raise NetworkError("Failed to fetch video")
 
 
-class NominatimAPIError(Exception):
+class APIError(Exception):
+    """Base class for API errors."""
+    def __init__(self, status_code, message, reason=None):
+        self.status_code = status_code
+        self.message = message
+        self.reason = reason
+        if reason:
+            super().__init__(f"{status_code} {reason}: {message}")
+        else:
+            super().__init__(f"{status_code}: {message}")
+
+
+class NominatimAPIError(APIError):
     """Raised when Nominatim API returns an error."""
     def __init__(self, status_code, message):
-        self.status_code = status_code
-        self.message = message
-        super().__init__(f"{status_code}: {message}")
+        super().__init__(status_code, message)
 
 
-class YouTubeAPIError(Exception):
+class YouTubeAPIError(APIError):
     """Raised when YouTube API returns an error."""
     def __init__(self, status_code, reason, message):
-        self.status_code = status_code
-        self.reason = reason
-        self.message = message
-        super().__init__(f"{status_code} {reason}: {message}")
+        super().__init__(status_code, message, reason)
 
 
 class QuotaExceededError(YouTubeAPIError):
@@ -115,6 +123,9 @@ class QuotaExceededError(YouTubeAPIError):
     pass
 
 
-class NetworkError(Exception):
+class NetworkError(APIError):
     """Raised when a network error occurs."""
-    pass
+    def __init__(self, message, status_code=503):
+        self.status_code = status_code
+        self.message = message
+        super(APIError, self).__init__(message)
