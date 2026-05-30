@@ -1,0 +1,5 @@
+[project]
+name = "app"
+version = "0.1.0"
+dependencies = [ "certifi==2026.5.20", "charset-normalizer==3.4.7", "dotenv==0.9.9", "flask==3.0.0", "flask-talisman==1.1.0", "idna==3.16", "python-dotenv==1.2.2", "requests==2.34.2", "urllib3==2.7.0", "logging==0.4.9.6" ]
+requires-python = "~=3.14.0"
