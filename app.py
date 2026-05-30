@@ -62,11 +62,6 @@ def validate_coordinates(latitude, longitude):
     except ValueError:
         return None, None
 
-@app.route('/favicon.ico')
-def favicon():
-    return send_from_directory(os.path.join(app.root_path, 'static'),
-                               'favicon_black.ico', mimetype='image/vnd.microsoft.icon')
-
 @app.route('/')
 def index():
     return render_template('index.html')
