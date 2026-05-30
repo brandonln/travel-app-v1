@@ -23,7 +23,6 @@ def _get_location(latitude, longitude):
                 "format": "json"
             },
             headers={"User-Agent": "travel-app/1.0"},
-            timeout=10
         )
 
         response.raise_for_status()
@@ -67,7 +66,7 @@ def _get_video(location, vid_type="vlog", order="date"):
             "key": api_key,
             "type": "video",
             "videoDuration": "medium"
-        }, timeout=10)
+        })
 
         response.raise_for_status()
         data = response.json()
