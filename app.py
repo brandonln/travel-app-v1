@@ -45,6 +45,11 @@ app.config['MAX_FORM_MEMORY_SIZE'] = 1 * 1024 * 1024  # 1MB max form data
 
 load_dotenv()
 
+def is_mobile():
+    user_agent = request.headers.get('User-Agent', '').lower()
+    mobile_keywords = ['mobile', 'android', 'iphone', 'ipad', 'ipod', 'windows phone', 'blackberry', 'opera mini']
+    return any(keyword in user_agent for keyword in mobile_keywords)
+
 def validate_coordinates(latitude, longitude):
     """Validate and convert latitude and longitude to floats."""
     try:
@@ -58,6 +63,8 @@ def validate_coordinates(latitude, longitude):
 
 @app.route('/')
 def index():
+    if is_mobile():
+        return render_template('mobile-landing.html')
     return render_template('index.html')
 
 @app.route('/favicon.ico')

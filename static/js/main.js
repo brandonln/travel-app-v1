@@ -12,9 +12,9 @@ let orderBy = 'date';
 let videoType = 'vlog';
 let loadTimeoutId = null;
 
-function isMobileDevice() {
-    return window.innerWidth <= 768;
-}
+// function isMobileDevice() {
+//     return window.innerWidth <= 768;
+// }
 
 const OptionsControl = L.Control.extend({
     options: {
@@ -155,11 +155,11 @@ async function getVideo(latitude, longitude) {
             const data = await response.json();
             console.log(data)
             if (data.video_found) {
-                if (isMobileDevice()) {
-                    showVideoOverlay(data.title, data.thumbnail, data.url);
-                } else {
+                // if (isMobileDevice()) {
+                //     showVideoOverlay(data.title, data.thumbnail, data.url);
+                // } else {
                     window.open(data.url, '_blank');
-                }
+                // }
             }
             else if (!data.location_found) {
                 showNotification('Try a different location...');
@@ -195,20 +195,10 @@ function handleMapInteraction(e) {
         closeVideoOverlay();
     } else {
         // Only fetch video if no overlay is currently displayed
-        if (isMobileDevice()) {
-            const loadingIndicator = document.getElementById('loading-indicator');
-            loadingIndicator.classList.remove('hidden');
-            getVideo(e.latlng.lat, e.latlng.lng).then(() => {
-                loadingIndicator.classList.add('hidden');
-            });
-        }
-        else {
-            map.getContainer().style.cursor = 'wait';
-            getVideo(e.latlng.lat, e.latlng.lng).then(() => {
-                map.getContainer().style.cursor = 'auto';
-            });
-        }
-
+        map.getContainer().style.cursor = 'wait';
+        getVideo(e.latlng.lat, e.latlng.lng).then(() => {
+            map.getContainer().style.cursor = 'auto';
+        });
     }
 }
 
