@@ -1,0 +1,119 @@
+WARNING:werkzeug: * Debugger is active!
+INFO:werkzeug: * Debugger PIN: 144-214-125
+INFO:werkzeug:[31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:8000
+INFO:werkzeug:[33mPress CTRL+C to quit[0m
+INFO:werkzeug: * Restarting with stat
+WARNING:werkzeug: * Debugger is active!
+INFO:werkzeug: * Debugger PIN: 144-214-125
+INFO:werkzeug:127.0.0.1 - - [31/May/2026 14:39:45] "GET / HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [31/May/2026 14:39:45] "[33mGET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1[0m" 404 -
+INFO:werkzeug:127.0.0.1 - - [31/May/2026 14:39:45] "GET /static/css/style.css HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [31/May/2026 14:39:45] "GET /static/js/main.js HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [31/May/2026 14:39:45] "GET /favicon.ico HTTP/1.1" 200 -
+ERROR:app:YouTube API Error: Quota exceeded for quota metric 'Search Queries' and limit 'Search Queries per day' of service 'youtube.googleapis.com' for consumer 'project_number:411266458588'.
+INFO:werkzeug:127.0.0.1 - - [31/May/2026 14:39:48] "[31m[1mGET /api/video/-25.681137335685307/28.212890625000004?orderBy=date&videoType=vlog HTTP/1.1[0m" 429 -
+INFO:werkzeug:[31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:8000
+INFO:werkzeug:[33mPress CTRL+C to quit[0m
+INFO:werkzeug: * Restarting with stat
+WARNING:werkzeug: * Debugger is active!
+INFO:werkzeug: * Debugger PIN: 144-214-125
+ERROR:app:YouTube API Error: The request cannot be completed because you have exceeded your <a href="/youtube/v3/getting-started#quota">quota</a>.
+INFO:werkzeug:127.0.0.1 - - [31/May/2026 14:44:05] "[31m[1mGET /api/video/-31.466153715024284/27.333984375000004?orderBy=date&videoType=vlog HTTP/1.1[0m" 403 -
+INFO:werkzeug:127.0.0.1 - - [31/May/2026 14:44:05] "GET / HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [31/May/2026 14:44:05] "[33mGET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1[0m" 404 -
+INFO:werkzeug:127.0.0.1 - - [31/May/2026 14:44:05] "GET /static/js/main.js HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [31/May/2026 14:44:05] "GET /static/css/style.css HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [31/May/2026 14:44:06] "GET /favicon.ico HTTP/1.1" 200 -
+ERROR:app:YouTube API Error: Quota exceeded for quota metric 'Search Queries' and limit 'Search Queries per day' of service 'youtube.googleapis.com' for consumer 'project_number:411266458588'.
+INFO:werkzeug:127.0.0.1 - - [31/May/2026 14:44:08] "[31m[1mGET /api/video/-25.760319754713873/28.125000000000004?orderBy=date&videoType=vlog HTTP/1.1[0m" 429 -
+INFO:werkzeug: * Detected change in '/Users/brandon/Developer/travel-app-v1/app.py', reloading
+INFO:werkzeug: * Restarting with stat
+WARNING:werkzeug: * Debugger is active!
+INFO:werkzeug: * Debugger PIN: 144-214-125
+INFO:werkzeug:[31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:8000
+INFO:werkzeug:[33mPress CTRL+C to quit[0m
+INFO:werkzeug: * Restarting with stat
+WARNING:werkzeug: * Debugger is active!
+INFO:werkzeug: * Debugger PIN: 144-214-125
+ERROR:app:YouTube API Quota Exceeded: The request cannot be completed because you have exceeded your <a href="/youtube/v3/getting-started#quota">quota</a>.
+INFO:werkzeug:127.0.0.1 - - [31/May/2026 14:49:41] "[35m[1mGET /api/video/-25.79989118208832/28.212890625000004?orderBy=date&videoType=vlog HTTP/1.1[0m" 500 -
+INFO:werkzeug:127.0.0.1 - - [31/May/2026 14:53:43] "GET / HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [31/May/2026 14:53:43] "GET /static/css/style.css HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [31/May/2026 14:53:43] "[33mGET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1[0m" 404 -
+INFO:werkzeug:127.0.0.1 - - [31/May/2026 14:53:43] "GET /static/js/main.js HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [31/May/2026 14:53:44] "GET /favicon.ico HTTP/1.1" 200 -
+ERROR:app:YouTube API Quota Exceeded: The request cannot be completed because you have exceeded your <a href="/youtube/v3/getting-started#quota">quota</a>.
+INFO:werkzeug:127.0.0.1 - - [31/May/2026 14:53:48] "[35m[1mGET /api/video/-25.720735134412106/28.212890625000004?orderBy=date&videoType=vlog HTTP/1.1[0m" 500 -
+INFO:werkzeug: * Detected change in '/Users/brandon/Developer/travel-app-v1/app.py', reloading
+INFO:werkzeug: * Restarting with stat
+WARNING:werkzeug: * Debugger is active!
+INFO:werkzeug: * Debugger PIN: 144-214-125
+INFO:werkzeug: * Detected change in '/Users/brandon/Developer/travel-app-v1/app.py', reloading
+INFO:werkzeug: * Restarting with stat
+WARNING:werkzeug: * Debugger is active!
+INFO:werkzeug: * Debugger PIN: 144-214-125
+INFO:werkzeug:127.0.0.1 - - [31/May/2026 14:56:27] "GET / HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [31/May/2026 14:56:27] "[33mGET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1[0m" 404 -
+INFO:werkzeug:127.0.0.1 - - [31/May/2026 14:56:27] "GET /static/css/style.css HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [31/May/2026 14:56:27] "GET /static/js/main.js HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [31/May/2026 14:56:27] "GET /favicon.ico HTTP/1.1" 200 -
+ERROR:app:YouTube API Error: Quota exceeded for quota metric 'Search Queries' and limit 'Search Queries per day' of service 'youtube.googleapis.com' for consumer 'project_number:411266458588'.
+INFO:werkzeug:127.0.0.1 - - [31/May/2026 14:56:30] "[31m[1mGET /api/video/-24.686952411999144/25.8837890625?orderBy=date&videoType=vlog HTTP/1.1[0m" 429 -
+INFO:werkzeug:127.0.0.1 - - [31/May/2026 14:56:52] "GET / HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [31/May/2026 14:56:52] "GET /static/css/style.css HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [31/May/2026 14:56:52] "[33mGET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1[0m" 404 -
+INFO:werkzeug:127.0.0.1 - - [31/May/2026 14:56:52] "GET /static/js/main.js HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [31/May/2026 14:56:52] "GET /favicon.ico HTTP/1.1" 200 -
+ERROR:app:YouTube API Error: Quota exceeded for quota metric 'Search Queries' and limit 'Search Queries per day' of service 'youtube.googleapis.com' for consumer 'project_number:411266458588'.
+INFO:werkzeug:127.0.0.1 - - [31/May/2026 14:56:54] "[31m[1mGET /api/video/-24.567108352575975/26.059570312500004?orderBy=date&videoType=vlog HTTP/1.1[0m" 429 -
+INFO:werkzeug: * Detected change in '/Users/brandon/Developer/travel-app-v1/search.py', reloading
+INFO:werkzeug: * Restarting with stat
+WARNING:werkzeug: * Debugger is active!
+INFO:werkzeug: * Debugger PIN: 144-214-125
+INFO:werkzeug: * Detected change in '/Users/brandon/Developer/travel-app-v1/search.py', reloading
+INFO:werkzeug: * Restarting with stat
+WARNING:werkzeug: * Debugger is active!
+INFO:werkzeug: * Debugger PIN: 144-214-125
+INFO:werkzeug: * Detected change in '/Users/brandon/Developer/travel-app-v1/search.py', reloading
+INFO:werkzeug: * Restarting with stat
+WARNING:werkzeug: * Debugger is active!
+INFO:werkzeug: * Debugger PIN: 144-214-125
+INFO:werkzeug: * Detected change in '/Users/brandon/Developer/travel-app-v1/search.py', reloading
+INFO:werkzeug: * Restarting with stat
+WARNING:werkzeug: * Debugger is active!
+INFO:werkzeug: * Debugger PIN: 144-214-125
+INFO:werkzeug: * Detected change in '/Users/brandon/Developer/travel-app-v1/search.py', reloading
+INFO:werkzeug: * Restarting with stat
+INFO:werkzeug: * Restarting with stat
+INFO:werkzeug: * Restarting with stat
+INFO:werkzeug: * Restarting with stat
+INFO:werkzeug: * Restarting with stat
+INFO:werkzeug: * Restarting with stat
+INFO:werkzeug: * Restarting with stat
+INFO:werkzeug: * Restarting with stat
+WARNING:werkzeug: * Debugger is active!
+INFO:werkzeug: * Debugger PIN: 144-214-125
+INFO:werkzeug: * Detected change in '/Users/brandon/Developer/travel-app-v1/app.py', reloading
+INFO:werkzeug: * Restarting with stat
+WARNING:werkzeug: * Debugger is active!
+INFO:werkzeug: * Debugger PIN: 144-214-125
+INFO:werkzeug:[31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:8000
+INFO:werkzeug:[33mPress CTRL+C to quit[0m
+INFO:werkzeug: * Restarting with stat
+WARNING:werkzeug: * Debugger is active!
+INFO:werkzeug: * Debugger PIN: 144-214-125
+INFO:werkzeug:127.0.0.1 - - [31/May/2026 16:03:29] "GET / HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [31/May/2026 16:03:29] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+INFO:werkzeug:127.0.0.1 - - [31/May/2026 16:03:29] "GET /static/js/main.js HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [31/May/2026 16:03:29] "[36mGET /favicon.ico HTTP/1.1[0m" 304 -
+INFO:werkzeug:127.0.0.1 - - [31/May/2026 16:03:33] "GET /api/video/-29.916852233070173/39.8583984375?orderBy=date&videoType=vlog HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [31/May/2026 16:03:37] "GET /api/video/-29.19053283229458/36.69433593750001?orderBy=date&videoType=vlog HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [31/May/2026 16:03:42] "GET /api/video/-25.641526373065755/28.081054687500004?orderBy=date&videoType=vlog HTTP/1.1" 200 -
+INFO:werkzeug: * Detected change in '/Users/brandon/Developer/travel-app-v1/app.py', reloading
+INFO:werkzeug: * Restarting with stat
+INFO:werkzeug: * Restarting with stat
+INFO:werkzeug: * Restarting with stat

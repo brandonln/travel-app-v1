@@ -1,6 +1,7 @@
 import os
 import logging
 import requests
+import json
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -12,7 +13,6 @@ logger = logging.getLogger(__name__)
 
 def _get_location(latitude, longitude):
     """Get the city/town/village from coordinates using Nominatim."""
-
     try:
         response = requests.get(
             "https://nominatim.openstreetmap.org/reverse",
@@ -37,11 +37,9 @@ def _get_location(latitude, longitude):
         )
 
         return location if location else None
-
-    except requests.exceptions.HTTPError as e:
-        raise NominatimAPIError(e.response.status_code, str(e))
-    except requests.exceptions.RequestException as e:
-        raise NetworkError("Failed to fetch location")
+    
+    except requests.exceptions as e:
+        return {"reason": e.error}
 
 def _get_video(location, vid_type="vlog", order="date"):
     """Search for the latest video matching the search term."""
@@ -82,56 +80,26 @@ def _get_video(location, vid_type="vlog", order="date"):
         thumbnail_url = thumbnails.get("high", {}).get("url") or thumbnails.get("default", {}).get("url")
 
         return {"title": title, "url": url, "thumbnail": thumbnail_url}
-
+    
     except requests.exceptions.HTTPError as e:
+        # 1. Grab the response object trapped inside the exception
+        error_response = e.response
+    
+        # 2. Check if the error response actually contains JSON data
         try:
-            error_data = e.response.json().get("error", {})
-            error_reason = error_data.get("errors", [{}])[0].get("reason", "")
-            error_message = error_data.get("message", "Unknown error")
-            status_code = e.response.status_code
+            error_json = error_response.json()
+            error_payload = error_json.get("error", {})
+        
+            # 3. Defensively navigate the JSON to find the reason
+            errors_list = error_payload.get("errors", [])
+            first_error = next(iter(errors_list), {})
+            reason = first_error.get("reason")
 
-            if error_reason == "quotaExceeded":
-                raise QuotaExceededError(status_code, error_reason, error_message)
-            else:
-                raise YouTubeAPIError(status_code, error_reason, error_message)
-        except (ValueError, KeyError, IndexError):
-            raise YouTubeAPIError(e.response.status_code, "unknown", str(e))
+            return json.dumps({"reason": reason})
+            
+        except ValueError:
+            # The error response wasn't JSON (e.g., a raw HTML 502 Bad Gateway page)
+            return json.dumps({"reason": "Server error threw raw text/HTML"})
+
     except requests.exceptions.RequestException as e:
-        raise NetworkError("Failed to fetch video")
-
-
-class APIError(Exception):
-    """Base class for API errors."""
-    def __init__(self, status_code, message, reason=None):
-        self.status_code = status_code
-        self.message = message
-        self.reason = reason
-        if reason:
-            super().__init__(f"{status_code} {reason}: {message}")
-        else:
-            super().__init__(f"{status_code}: {message}")
-
-
-class NominatimAPIError(APIError):
-    """Raised when Nominatim API returns an error."""
-    def __init__(self, status_code, message):
-        super().__init__(status_code, message)
-
-
-class YouTubeAPIError(APIError):
-    """Raised when YouTube API returns an error."""
-    def __init__(self, status_code, reason, message):
-        super().__init__(status_code, message, reason)
-
-
-class QuotaExceededError(YouTubeAPIError):
-    """Raised when YouTube API quota is exceeded."""
-    pass
-
-
-class NetworkError(APIError):
-    """Raised when a network error occurs."""
-    def __init__(self, message, status_code=503):
-        self.status_code = status_code
-        self.message = message
-        super(APIError, self).__init__(message)
+        return {"reason": "Network level failure"}
