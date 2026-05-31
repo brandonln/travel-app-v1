@@ -4,29 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>One Planet Map</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            display: flex;
-            justify-content: center;
-            background: #f5f5f5;
-        }
-
-        .landing-container {
-            max-width: 100%;
-            width: fit-content;
-        }
-
-        .landing-image {
-            display: block;
-            width: 100vw;
-        }
-    </style>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/mobile-landing.css') }}">
 </head>
 <body>
     <div class="landing-container">
