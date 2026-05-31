@@ -151,39 +151,36 @@ async function getVideo(latitude, longitude) {
         });
         const response = await fetch(`/api/video/${latitude}/${longitude}?${params}`);
 
-        const data = await response.json();
-
-        if (data.nominatim_error) {
-            console.error(`Location service error (${data.status_code}):`, data.message);
-            showNotification('Sorry, we need to fix this!');
-        }
-        else if (data.youtube_error) {
-            console.error(`YouTube API Error (${data.status_code}):`, data.reason);
-            if (data.reason === "quotaExceeded") {
-                showNotification('Daily limit exceeded. Try again tomorrow.');
-            } else {
-                showNotification('Sorry, we need to fix this!');
+        if (response.ok) {
+            const data = await response.json();
+            if (data.video_found) {
+                if (isMobileDevice()) {
+                    showVideoOverlay(data.title, data.thumbnail, data.url);
+                } else {
+                    window.open(data.url, '_blank');
+                }
+            }
+            else if (!data.location_found) {
+                showNotification('Try a different location...');
+            }
+            else if (!data.video_found) {
+                showNotification('No videos found for this location');
             }
         }
-        else if (data.network_error) {
-            showNotification('Connection error.');
-        }
-        else if (response.ok && data.video_found) {
-            if (isMobileDevice()) {
-                showVideoOverlay(data.title, data.thumbnail, data.url);
-            } else {
-                window.open(data.url, '_blank');
-            }
-        }
-        else if (!data.location_found) {
-            showNotification('Try a different location...');
-        }
-        else if (!data.video_found) {
-            showNotification('No videos found for this location');
+        // --- ERROR HANDLING AREA ---
+        // If we reach here, response.ok is false (e.g., status 403, 400, 500)
+    
+        // 1. Parse the simple error JSON sent by your Python backend
+        const errorData = await response.json();
+    
+        // 2. Check if the reason is specifically 'quotaExceeded'
+        if (errorData.reason === 'quotaExceeded') {
+            showNotification('Daily limit exceeded. Try again tomorrow.');
+        } else {
+            showNotification('Sorry, something went wrong!');
         }
     } catch (error) {
-        console.error(error);
-        showNotification('Error retrieving video');
+        showNotification('Sorry, something went wrong!');
     }
 }
 
