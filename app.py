@@ -74,7 +74,8 @@ def get_video(latitude, longitude):
     result = _get_location(lat, lon)
 
     if not result:
-        return jsonify({"location_found": False}), 200
+        return jsonify({"location_found": False,
+                        "video_found": False}), 200
 
     if "reason" in result:
         error_reason = result["reason"]

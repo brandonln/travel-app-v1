@@ -153,6 +153,7 @@ async function getVideo(latitude, longitude) {
 
         if (response.ok) {
             const data = await response.json();
+            console.log(data)
             if (data.video_found) {
                 if (isMobileDevice()) {
                     showVideoOverlay(data.title, data.thumbnail, data.url);
@@ -167,19 +168,17 @@ async function getVideo(latitude, longitude) {
                 showNotification('No videos found for this location');
             }
         }
-        // --- ERROR HANDLING AREA ---
-        // If we reach here, response.ok is false (e.g., status 403, 400, 500)
-    
-        // 1. Parse the simple error JSON sent by your Python backend
-        const errorData = await response.json();
-    
-        // 2. Check if the reason is specifically 'quotaExceeded'
-        if (errorData.reason === 'quotaExceeded') {
-            showNotification('Daily limit exceeded. Try again tomorrow.');
-        } else {
-            showNotification('Sorry, something went wrong!');
+        else {
+            const errorData = await response.json();
+            if (errorData.reason === 'quotaExceeded') {
+                showNotification('Daily limit exceeded. Try again tomorrow.');
+            } else {
+                showNotification('Sorry, something went wrong!');
+            }
         }
+
     } catch (error) {
+        console.log(error)
         showNotification('Sorry, something went wrong!');
     }
 }

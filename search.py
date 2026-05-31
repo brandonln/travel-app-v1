@@ -34,7 +34,7 @@ def _get_location(latitude, longitude):
                 address.get("city") or
                 address.get("town") or
                 address.get("village")
-        )
+        ) 
 
         return location if location else None
     
