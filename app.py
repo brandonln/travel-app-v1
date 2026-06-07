@@ -89,6 +89,9 @@ def get_video(latitude, longitude):
         return jsonify({"reason": error_reason}), 400
     
     location = result
+
+    if not location:
+        return jsonify({"location_found": False, "video_found": False}), 200
     
     VALID_ORDER_BY = {'date', 'relevance'}
     VALID_VIDEO_TYPES = {'vlog', 'walking tour'}
@@ -104,7 +107,7 @@ def get_video(latitude, longitude):
     
     result = _get_video(f"{location} ", video_type, order_by)
 
-    if "reason" in result:
+    if result and "reason" in result:
         error_reason = result["reason"]
         return jsonify({"reason": error_reason}), 400
     else:
