@@ -38,7 +38,7 @@ def _get_location(latitude, longitude):
         
         country = address.get("country")
 
-        return settlement + " " + country if country else None
+        return settlement + " " + country if settlement else None
     
     except requests.exceptions.RequestException as e:
         return {"reason": e.error}
