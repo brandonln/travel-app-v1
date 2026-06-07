@@ -34,11 +34,16 @@ def _get_location(latitude, longitude):
                 address.get("city") or
                 address.get("town") or
                 address.get("village")
-        ) 
-        
-        country = address.get("country")
+        )
 
-        return settlement + " " + country if settlement else None
+        if settlement:
+            state = address.get("state") 
+            country = address.get("country")
+            location = settlement + " " + state + " " + country
+            return location
+
+        else:
+            return None
     
     except requests.exceptions.RequestException as e:
         return {"reason": e.error}
