@@ -37,8 +37,8 @@ def _get_location(latitude, longitude):
         )
 
         if settlement:
-            state = address.get("state") 
-            country = address.get("country")
+            state = address.get("state") or ""
+            country = address.get("country") or ""
             location = settlement + " " + state + " " + country
             return location
 
