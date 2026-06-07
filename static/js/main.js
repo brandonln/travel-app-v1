@@ -3,7 +3,8 @@ const map = L.map('map', {
 }).setView([-25.96716, 27.66245], 7);
 
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '&copy; OpenStreetMap contributors',
+    attribution: 'Powered by YouTube | '
+                +'&copy; OpenStreetMap contributors',
     minZoom: 7,
     maxZoom: 11
 }).addTo(map);
