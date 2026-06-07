@@ -30,15 +30,17 @@ def _get_location(latitude, longitude):
 
         address = data.get("address", {})
 
-        location = (
+        settlement = (
                 address.get("city") or
                 address.get("town") or
                 address.get("village")
         ) 
+        
+        country = address.get("country")
 
-        return location if location else None
+        return settlement + " " + country if country else None
     
-    except requests.exceptions as e:
+    except requests.exceptions.RequestException as e:
         return {"reason": e.error}
 
 def _get_video(location, vid_type="vlog", order="date"):
